@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client.js'
+
 // State variables for pagination
 let productFetchController = null; // To abort previous fetches
 let currentProductSearchTerm = '';
