@@ -93,6 +93,7 @@ nav ul li i {
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
+  margin-left: 0;
 }
 
 .company-name {
