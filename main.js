@@ -5,6 +5,45 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+const setCookie = (name, value, days) => {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Strict; Secure";
+}
+
+const getCookie = (name) => {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i=0;i < ca.length;i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+const eraseCookie = (name) => {
+    document.cookie = name+'=; Max-Age=-99999999;';
+}
+
+const handleAuthError = (error) => {
+  const errorMessage = document.getElementById('error-message');
+  if (errorMessage) {
+    errorMessage.innerText = error.message;
+    errorMessage.style.display = 'block';
+  } else {
+    alert(error.message);
+  }
+};
+
+const navigateTo = (page) => {
+  window.location.href = `/${page}.html`;
+};
+
 // Login functionality
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
@@ -21,7 +60,7 @@ if (loginForm) {
             .single();
 
         if (profileError || !profile) {
-            alert('User ID not found');
+            handleAuthError({ message: 'User ID not found' });
             return;
         }
 
@@ -33,24 +72,24 @@ if (loginForm) {
             password,
         });
         if (error) {
-            alert(error.message);
+            handleAuthError(error);
         } else {
-            sessionStorage.setItem('userName', name);
-            window.location.href = '/dashboard.html';
+            setCookie('userName', name, 1);
+            navigateTo('dashboard');
         }
     });
 }
 
 // Check user session on all pages except login
 if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
-    const userName = sessionStorage.getItem('userName');
+    const userName = getCookie('userName');
     if (userName) {
         const userInfo = document.getElementById('user-info');
         if (userInfo) {
             userInfo.innerText = userName;
         }
     } else {
-        window.location.href = '/';
+        navigateTo('index');
     }
 }
 
@@ -61,10 +100,10 @@ if (logoutButton) {
     logoutButton.addEventListener('click', async () => {
         const { error } = await supabase.auth.signOut();
         if (error) {
-            alert(error.message);
+            handleAuthError(error);
         } else {
-            sessionStorage.removeItem('userName');
-            window.location.href = '/';
+            eraseCookie('userName');
+            navigateTo('index');
         }
     });
 }
@@ -91,7 +130,7 @@ navItems.forEach(item => {
     item.addEventListener('click', () => {
         const page = item.getAttribute('data-page');
         if (page) {
-            window.location.href = `/${page}.html`;
+            navigateTo(page);
         }
     });
 });
