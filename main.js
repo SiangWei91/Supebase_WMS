@@ -44,7 +44,7 @@ const loadContent = async (page) => {
         content.innerHTML = await response.text();
         if (page === 'product') {
           const module = await import('/product.js');
-          module.displayProducts();
+          module.loadProducts(content);
         }
       } else {
         content.innerHTML = '<p>Page not found.</p>';
