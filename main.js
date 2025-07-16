@@ -40,15 +40,45 @@ const handleAuthError = (error) => {
   }
 };
 
+const loadContent = async (page) => {
+  const content = document.getElementById('content');
+  if (content) {
+    try {
+      const response = await fetch(`/templates/${page}.html`);
+      if (response.ok) {
+        content.innerHTML = await response.text();
+      } else {
+        content.innerHTML = '<p>Page not found.</p>';
+      }
+    } catch (error) {
+      console.error('Error loading page:', error);
+      content.innerHTML = '<p>Error loading page.</p>';
+    }
+  }
+};
+
 const navigateTo = (page) => {
-  window.location.href = `/${page}.html`;
+  loadContent(page);
+  history.pushState({ page }, '', `/app.html/${page}`);
+  document.querySelectorAll('nav ul li').forEach(item => {
+    item.classList.remove('active');
+    if (item.getAttribute('data-page') === page) {
+      item.classList.add('active');
+    }
+  });
+};
+
+window.onpopstate = (event) => {
+  if (event.state && event.state.page) {
+    loadContent(event.state.page);
+  }
 };
 
 // Login functionality
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
     if (getCookie('userName')) {
-        navigateTo('dashboard');
+        window.location.href = '/app.html';
     }
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -78,21 +108,23 @@ if (loginForm) {
             handleAuthError(error);
         } else {
             setCookie('userName', name, 1);
-            navigateTo('dashboard');
+            window.location.href = '/app.html';
         }
     });
 }
 
 // Check user session on all pages except login
-if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+if (window.location.pathname.startsWith('/app')) {
     const userName = getCookie('userName');
     if (userName) {
         const userInfo = document.getElementById('user-info');
         if (userInfo) {
             userInfo.innerText = userName;
         }
+        const page = window.location.pathname.split('/')[2] || 'dashboard';
+        loadContent(page);
     } else {
-        navigateTo('index');
+        window.location.href = '/index.html';
     }
 }
 
@@ -101,12 +133,12 @@ if (window.location.pathname !== '/' && window.location.pathname !== '/index.htm
 const logoutButton = document.getElementById('logout-button');
 if (logoutButton) {
     logoutButton.addEventListener('click', async () => {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabase.auth. signOut();
         if (error) {
             handleAuthError(error);
         } else {
             eraseCookie('userName');
-            navigateTo('index');
+            window.location.href = '/index.html';
         }
     });
 }

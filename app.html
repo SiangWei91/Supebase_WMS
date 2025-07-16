@@ -20,7 +20,7 @@
         </div>
         <nav>
           <ul>
-            <li data-page="dashboard">
+            <li class="active" data-page="dashboard">
               <i class="fas fa-tachometer-alt"></i>
               <span>Dashboard</span>
             </li>
@@ -36,6 +36,10 @@
               <i class="fas fa-exchange-alt"></i>
               <span>Transaction</span>
             </li>
+            <li data-page="shipment">
+              <i class="fas fa-shipping-fast"></i>
+              <span>Shipment</span>
+            </li>
             <li data-page="stock-take">
               <i class="fas fa-boxes-stacked"></i>
               <span>Stock Take</span>
@@ -48,7 +52,7 @@
               <i class="fas fa-thermometer-half"></i>
               <span>CR Temperature</span>
             </li>
-            <li class="active" data-page="service-record">
+            <li data-page="service-record">
               <i class="fas fa-tools"></i>
               <span>Service Record</span>
             </li>
@@ -81,7 +85,7 @@
         </header>
         <!-- 页面内容动态加载到这里 -->
         <div class="content" id="content">
-            <h1>Coming Soon</h1>
+          <!-- Page-specific content will be loaded here -->
         </div>
       </main>
     </div>
