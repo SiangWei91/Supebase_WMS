@@ -48,7 +48,13 @@ if (userName) {
     if (userInfo) {
         userInfo.innerText = userName;
     }
+} else {
+    const currentPage = window.location.pathname;
+    if (currentPage !== '/' && currentPage !== '/index.html') {
+        window.location.href = '/';
+    }
 }
+
 
 // Logout functionality
 const logoutButton = document.getElementById('logout-button');
@@ -79,3 +85,14 @@ if (avatarTrigger) {
         }
     });
 }
+
+// Navigation functionality
+const navItems = document.querySelectorAll('nav ul li');
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const page = item.getAttribute('data-page');
+        if (page) {
+            window.location.href = `/${page}.html`;
+        }
+    });
+});
