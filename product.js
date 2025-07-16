@@ -32,7 +32,7 @@ export async function loadProducts(contentElement) {
                 </div>
             </div>
             <div class="table-container">
-                <table>
+                <table class="product-table">
                     <thead>
                         <tr>
                             <th>Item Code</th>
@@ -162,13 +162,13 @@ function renderProductsTable(products) {
             <td>${productDescription}</td>
             <td>${escapeHtml(product.packing_size || '')}</td>
             <td class="actions">
-                <button class="btn-icon view-btn" data-id="${escapeHtml(product.id || '')}">
+                <button class="btn-icon view-btn" data-id="${escapeHtml(product.item_code || '')}">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn-icon edit-btn" data-id="${escapeHtml(product.id || '')}">
+                <button class="btn-icon edit-btn" data-id="${escapeHtml(product.item_code || '')}">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn-icon delete-btn" data-id="${escapeHtml(product.id || '')}">
+                <button class="btn-icon delete-btn" data-id="${escapeHtml(product.item_code || '')}">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -299,7 +299,7 @@ async function viewProduct(productId) {
         const { data: product, error } = await supabase
             .from('products')
             .select()
-            .eq('id', productId)
+            .eq('item_code', productId)
             .single()
         if (error) {
             throw error
@@ -327,7 +327,7 @@ async function editProduct(productId) {
         const { data: product, error } = await supabase
             .from('products')
             .select()
-            .eq('id', productId)
+            .eq('item_code', productId)
             .single()
         if (error) {
             throw error
@@ -337,7 +337,7 @@ async function editProduct(productId) {
             content.innerHTML = `
                 <div class="form-container">
                     <h1>Edit Product</h1>
-                    <form id="edit-product-form" data-product-id="${escapeHtml(product.id || '')}">
+                    <form id="edit-product-form" data-product-id="${escapeHtml(product.item_code || '')}">
                         <div class="form-group">
                             <label for="edit-productCode">Item Code*</label>
                             <input type="text" id="edit-productCode" name="productCode" value="${escapeHtml(product.product_code || '')}" required>
@@ -385,7 +385,7 @@ async function deleteProduct(productId) {
             const { error } = await supabase
                 .from('products')
                 .delete()
-                .match({ id: productId })
+                .match({ item_code: productId })
             if (error) {
                 throw error
             }
@@ -425,7 +425,7 @@ async function handleUpdateProduct(e, contentElement) {
         const { error } = await supabase
             .from('products')
             .update(updatedProductData)
-            .match({ id: productId })
+            .match({ item_code: productId })
         if (error) {
             throw error
         }
