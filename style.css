@@ -230,3 +230,9 @@ nav ul li a {
   color: #fff;
   text-decoration: none;
 }
+
+nav ul li i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}

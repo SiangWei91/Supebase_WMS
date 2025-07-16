@@ -13,20 +13,17 @@ if (loginForm) {
         const userId = document.getElementById('user-id').value;
         const password = document.getElementById('password').value;
 
-        const response = await fetch(`${supabaseUrl}/rest/v1/profiles?user_id=eq.${userId}&select=email,name`, {
-            headers: {
-                'apikey': supabaseAnonKey,
-                'Authorization': `Bearer ${supabaseAnonKey}`,
-                'Accept': 'application/json'
-            }
-        });
+        // Get email from profiles table
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('email, name')
+            .eq('user_id', userId)
+            .single();
 
-        if (!response.ok) {
+        if (profileError || !profile) {
             alert('User ID not found');
             return;
         }
-
-        const [profile] = await response.json();
 
         const email = profile.email;
         const name = profile.name;
@@ -44,27 +41,13 @@ if (loginForm) {
     });
 }
 
-// Check user session on dashboard page
-if (window.location.pathname === '/dashboard.html') {
-    const userName = localStorage.getItem('userName');
-    if (userName) {
-        document.getElementById('user-info').innerText = userName;
-    } else {
-        window.location.href = '/';
+// Check user session on all pages
+const userName = localStorage.getItem('userName');
+if (userName) {
+    const userInfo = document.getElementById('user-info');
+    if (userInfo) {
+        userInfo.innerText = userName;
     }
-
-    const avatarTrigger = document.querySelector('.avatar-menu-trigger');
-    const avatarDropdown = document.querySelector('.avatar-dropdown');
-
-    avatarTrigger.addEventListener('click', () => {
-        avatarDropdown.classList.toggle('show');
-    });
-
-    window.addEventListener('click', (event) => {
-        if (!avatarTrigger.contains(event.target)) {
-            avatarDropdown.classList.remove('show');
-        }
-    });
 }
 
 // Logout functionality
@@ -77,6 +60,22 @@ if (logoutButton) {
         } else {
             localStorage.removeItem('userName');
             window.location.href = '/';
+        }
+    });
+}
+
+// Avatar dropdown functionality
+const avatarTrigger = document.querySelector('.avatar-menu-trigger');
+if (avatarTrigger) {
+    const avatarDropdown = document.querySelector('.avatar-dropdown');
+
+    avatarTrigger.addEventListener('click', () => {
+        avatarDropdown.classList.toggle('show');
+    });
+
+    window.addEventListener('click', (event) => {
+        if (!avatarTrigger.contains(event.target)) {
+            avatarDropdown.classList.remove('show');
         }
     });
 }
