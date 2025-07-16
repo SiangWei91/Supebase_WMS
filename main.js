@@ -41,16 +41,15 @@ if (loginForm) {
     });
 }
 
-// Check user session on all pages
-const userName = localStorage.getItem('userName');
-if (userName) {
-    const userInfo = document.getElementById('user-info');
-    if (userInfo) {
-        userInfo.innerText = userName;
-    }
-} else {
-    const currentPage = window.location.pathname;
-    if (currentPage !== '/' && currentPage !== '/index.html') {
+// Check user session on all pages except login
+if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+    const userName = localStorage.getItem('userName');
+    if (userName) {
+        const userInfo = document.getElementById('user-info');
+        if (userInfo) {
+            userInfo.innerText = userName;
+        }
+    } else {
         window.location.href = '/';
     }
 }
