@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -10,8 +10,23 @@ const loginForm = document.getElementById('login-form');
 if (loginForm) {
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const email = document.getElementById('email').value;
+        const userId = document.getElementById('user-id').value;
         const password = document.getElementById('password').value;
+
+        // Get email from profiles table
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('user_id', userId)
+            .single();
+
+        if (profileError || !profile) {
+            alert('User ID not found');
+            return;
+        }
+
+        const email = profile.email;
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
