@@ -12,6 +12,9 @@ const fetchProducts = async () => {
 }
 
 const createProductTable = (products) => {
+    const tableContainer = document.createElement('div')
+    tableContainer.classList.add('table-container')
+
     const table = document.createElement('table')
     table.classList.add('product-table')
 
@@ -39,7 +42,9 @@ const createProductTable = (products) => {
     })
     table.appendChild(tbody)
 
-    return table
+    tableContainer.appendChild(table)
+
+    return tableContainer
 }
 
 export const displayProducts = async () => {

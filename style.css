@@ -87,21 +87,33 @@ nav ul li i {
   margin-left: 0;
 }
 
+.table-container {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
 .product-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
 .product-table th,
 .product-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 13px; /* Reduced padding */
   text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
 .product-table th {
-  background-color: #f2f2f2;
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.product-table tr:hover {
+  background-color: #f8f9fa;
 }
 
 @media (max-width: 768px) {
