@@ -205,6 +205,26 @@ nav ul li i {
   background-color: #f5f5f5;
 }
 
+.sidebar-toggle {
+    font-size: 1.5rem; /* This will be affected by body's 0.9rem */
+    cursor: pointer;
+    margin-right: 20px;
+  }
+
+.sidebar.sidebar-collapsed {
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar.sidebar-collapsed .logo,
+.sidebar.sidebar-collapsed nav ul {
+  display: none;
+}
+
+.sidebar.sidebar-collapsed + .main-content {
+  margin-left: 0;
+}
+
 @media (min-width: 768px) {
   .app-container {
     flex-direction: row;
