@@ -47,6 +47,10 @@ const loadContent = async (page) => {
       const response = await fetch(`/templates/${page}.html`);
       if (response.ok) {
         content.innerHTML = await response.text();
+        if (page === 'product') {
+          const module = await import('/product.js');
+          module.displayProducts();
+        }
       } else {
         content.innerHTML = '<p>Page not found.</p>';
       }
