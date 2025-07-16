@@ -47,6 +47,9 @@ const navigateTo = (page) => {
 // Login functionality
 const loginForm = document.getElementById('login-form');
 if (loginForm) {
+    if (getCookie('userName')) {
+        navigateTo('dashboard');
+    }
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const userId = document.getElementById('user-id').value;
