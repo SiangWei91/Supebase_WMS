@@ -35,7 +35,7 @@ if (loginForm) {
         if (error) {
             alert(error.message);
         } else {
-            localStorage.setItem('userName', name);
+            sessionStorage.setItem('userName', name);
             window.location.href = '/dashboard.html';
         }
     });
@@ -43,7 +43,7 @@ if (loginForm) {
 
 // Check user session on all pages except login
 if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
-    const userName = localStorage.getItem('userName');
+    const userName = sessionStorage.getItem('userName');
     if (userName) {
         const userInfo = document.getElementById('user-info');
         if (userInfo) {
@@ -63,7 +63,7 @@ if (logoutButton) {
         if (error) {
             alert(error.message);
         } else {
-            localStorage.removeItem('userName');
+            sessionStorage.removeItem('userName');
             window.location.href = '/';
         }
     });
