@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  // config options
+  server: {
+    headers: {
+      'Accept': 'application/json'
+    }
+  }
 })

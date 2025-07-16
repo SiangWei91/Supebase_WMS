@@ -13,17 +13,20 @@ if (loginForm) {
         const userId = document.getElementById('user-id').value;
         const password = document.getElementById('password').value;
 
-        // Get email from profiles table
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('email, name')
-            .eq('user_id', userId)
-            .single();
+        const response = await fetch(`${supabaseUrl}/rest/v1/profiles?user_id=eq.${userId}&select=email,name`, {
+            headers: {
+                'apikey': supabaseAnonKey,
+                'Authorization': `Bearer ${supabaseAnonKey}`,
+                'Accept': 'application/json'
+            }
+        });
 
-        if (profileError || !profile) {
+        if (!response.ok) {
             alert('User ID not found');
             return;
         }
+
+        const [profile] = await response.json();
 
         const email = profile.email;
         const name = profile.name;
