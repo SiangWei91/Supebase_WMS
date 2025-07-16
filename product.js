@@ -38,7 +38,6 @@ export async function loadProducts(contentElement) {
                             <th>Item Code</th>
                             <th>Product Description</th>
                             <th>Packing Size</th>
-                            <th>Create Time</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -84,7 +83,7 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
     const signal = productFetchController.signal;
 
     try {
-        const { data, error } = await supabase
+        const { data, error, count } = await supabase
             .from('products')
             .select('*', { count: 'exact' })
             .ilike('product_name', `%${searchTerm}%`)
@@ -101,7 +100,7 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
 
         renderProductsTable(data);
 
-        totalNumItems = data.length
+        totalNumItems = count
         totalNumPages = Math.ceil(totalNumItems / limit)
         currentPageNum = page
         globalHasNextPage = page < totalNumPages
@@ -162,7 +161,6 @@ function renderProductsTable(products) {
             <td>${escapeHtml(product.item_code || '')}</td>
             <td>${productDescription}</td>
             <td>${escapeHtml(product.packing_size || '')}</td>
-            <td>${escapeHtml(createdAtDisplay)}</td>
             <td class="actions">
                 <button class="btn-icon view-btn" data-id="${escapeHtml(product.id || '')}">
                     <i class="fas fa-eye"></i>
@@ -300,7 +298,7 @@ async function viewProduct(productId) {
     try {
         const { data: product, error } = await supabase
             .from('products')
-            .select('*')
+            .select()
             .eq('id', productId)
             .single()
         if (error) {
@@ -328,7 +326,7 @@ async function editProduct(productId) {
     try {
         const { data: product, error } = await supabase
             .from('products')
-            .select('*')
+            .select()
             .eq('id', productId)
             .single()
         if (error) {
@@ -387,7 +385,7 @@ async function deleteProduct(productId) {
             const { error } = await supabase
                 .from('products')
                 .delete()
-                .eq('id', productId)
+                .match({ id: productId })
             if (error) {
                 throw error
             }
@@ -427,7 +425,7 @@ async function handleUpdateProduct(e, contentElement) {
         const { error } = await supabase
             .from('products')
             .update(updatedProductData)
-            .eq('id', productId)
+            .match({ id: productId })
         if (error) {
             throw error
         }
