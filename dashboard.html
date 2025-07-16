@@ -4,11 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to the Dashboard</h1>
-    <p id="user-info"></p>
-    <button id="logout-button">Sign Out</button>
+    <div class="main-content">
+        <div class="header">
+            <div class="user-info">
+                <span id="user-info"></span>
+                <div class="avatar"></div>
+            </div>
+            <button id="logout-button" class="btn btn-primary">Sign Out</button>
+        </div>
+        <div class="content">
+            <h1>Dashboard</h1>
+        </div>
+    </div>
     <script type="module" src="main.js"></script>
 </body>
 </html>
