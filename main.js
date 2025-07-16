@@ -16,7 +16,7 @@ if (loginForm) {
         // Get email from profiles table
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('email')
+            .select('email, name')
             .eq('user_id', userId)
             .single();
 
@@ -26,6 +26,7 @@ if (loginForm) {
         }
 
         const email = profile.email;
+        const name = profile.name;
 
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
@@ -34,6 +35,7 @@ if (loginForm) {
         if (error) {
             alert(error.message);
         } else {
+            localStorage.setItem('userName', name);
             window.location.href = '/dashboard.html';
         }
     });
@@ -41,12 +43,25 @@ if (loginForm) {
 
 // Check user session on dashboard page
 if (window.location.pathname === '/dashboard.html') {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        document.getElementById('user-info').innerText = `Welcome, ${user.email}!`;
+    const userName = localStorage.getItem('userName');
+    if (userName) {
+        document.getElementById('user-info').innerText = userName;
     } else {
         window.location.href = '/';
     }
+
+    const avatarTrigger = document.querySelector('.avatar-menu-trigger');
+    const avatarDropdown = document.querySelector('.avatar-dropdown');
+
+    avatarTrigger.addEventListener('click', () => {
+        avatarDropdown.classList.toggle('show');
+    });
+
+    window.addEventListener('click', (event) => {
+        if (!avatarTrigger.contains(event.target)) {
+            avatarDropdown.classList.remove('show');
+        }
+    });
 }
 
 // Logout functionality
@@ -57,6 +72,7 @@ if (logoutButton) {
         if (error) {
             alert(error.message);
         } else {
+            localStorage.removeItem('userName');
             window.location.href = '/';
         }
     });
