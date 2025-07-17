@@ -3,7 +3,7 @@ import { supabase } from './supabase-client.js'
 // State variables for pagination
 let productFetchController = null; // To abort previous fetches
 let currentProductSearchTerm = '';
-const PRODUCTS_PER_PAGE = 10;
+const PRODUCTS_PER_PAGE = 15;
 
 // Pagination state variables (client-side pagination with IndexedDB)
 let currentPageNum = 1;
@@ -86,7 +86,7 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
         const { data, error, count } = await supabase
             .from('products')
             .select('*', { count: 'exact' })
-            .ilike('product_name', `%${searchTerm}%`)
+            .or(`product_name.ilike.%${searchTerm}%,item_code.ilike.%${searchTerm}%`)
             .range((page - 1) * limit, page * limit - 1)
 
         if (signal.aborted) {
@@ -305,13 +305,25 @@ async function viewProduct(productId) {
             throw error
         }
         if (product) {
-            let createdAtString = 'N/A';
-            if (product.createdAt) {
-                try { createdAtString = new Date(product.createdAt).toLocaleString(); } catch (e) { console.warn("Error parsing createdAt for view", e); }
-            }
-            const chineseNameDisplay = product.product_chinese_name ? `<br>Chinese Name: ${escapeHtml(product.product_chinese_name)}` : '';
-            const message = `Product Details:<br>ID: ${escapeHtml(product.id)}<br>Code: ${escapeHtml(product.item_code)}<br>Name: ${escapeHtml(product.product_name)}${chineseNameDisplay}<br>Packaging: ${escapeHtml(product.packing_size)}<br>Created At: ${escapeHtml(createdAtString)}`; // CHANGED product.productCode
-            alert(message.replace(/<br>/g, '\n'));
+            const modalContainer = document.getElementById('modal-container');
+            modalContainer.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Product Details</h2>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Item Code:</strong> ${escapeHtml(product.item_code)}</p>
+                        <p><strong>Product Name:</strong> ${escapeHtml(product.product_name)}</p>
+                        <p><strong>Chinese Name:</strong> ${escapeHtml(product.product_chinese_name || '')}</p>
+                        <p><strong>Packing Size:</strong> ${escapeHtml(product.packing_size)}</p>
+                    </div>
+                </div>
+            `;
+            modalContainer.style.display = 'flex';
+            modalContainer.querySelector('.modal-close').addEventListener('click', () => {
+                modalContainer.style.display = 'none';
+            });
         } else {
             alert('Product not found.');
         }
@@ -339,8 +351,8 @@ async function editProduct(productId) {
                     <h1>Edit Product</h1>
                     <form id="edit-product-form" data-product-id="${escapeHtml(product.item_code || '')}">
                         <div class="form-group">
-                            <label for="edit-productCode">Item Code*</label>
-                            <input type="text" id="edit-productCode" name="productCode" value="${escapeHtml(product.product_code || '')}" required>
+                            <label for="edit-item_code">Item Code*</label>
+                            <input type="text" id="edit-item_code" name="item_code" value="${escapeHtml(product.item_code || '')}" required>
                         </div>
                         <div class="form-group">
                             <label for="edit-name">Product Description*</label>
@@ -404,7 +416,7 @@ async function handleUpdateProduct(e, contentElement) {
     const productId = form.dataset.productId;
 
     const updatedProductData = {
-        item_code: form.productCode.value,
+        item_code: form.item_code.value,
         product_name: form.name.value,
         product_chinese_name: form.chineseName.value,
         packing_size: form.packaging.value
