@@ -6,11 +6,10 @@ export async function loadStockTakeData() {
   const searchBtn = document.getElementById('search-btn');
   searchBtn.addEventListener('click', displayData);
 
-  const morningTbody = document.getElementById('morning-table-body');
-  const afternoonTbody = document.getElementById('afternoon-table-body');
-  morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">Loading data...</td></tr>`;
-  afternoonTbody.innerHTML = `<tr><td colspan="4" class="text-center"></td></tr>`;
-
+  const morningTable = document.querySelector('.table-wrapper:first-child');
+  const afternoonTable = document.querySelector('.table-wrapper:last-child');
+  morningTable.style.display = 'none';
+  afternoonTable.style.display = 'none';
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -30,10 +29,11 @@ export async function loadStockTakeData() {
     if (allData.error) {
       throw new Error(allData.error);
     }
-    morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">Please select a coldroom and date and click search.</td></tr>`;
   } catch (error) {
     console.error('Failed to load stock take data:', error);
+    const morningTbody = document.getElementById('morning-table-body');
     morningTbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+    morningTable.style.display = 'block';
   }
 }
 
@@ -56,6 +56,10 @@ function displayData() {
     const afternoonTbody = document.getElementById('afternoon-table-body');
     morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the selected coldroom.</td></tr>`;
     afternoonTbody.innerHTML = '';
+    const morningTable = document.querySelector('.table-wrapper:first-child');
+    const afternoonTable = document.querySelector('.table-wrapper:last-child');
+    morningTable.style.display = 'block';
+    afternoonTable.style.display = 'none';
     return;
   }
 
@@ -88,6 +92,11 @@ function displayData() {
   morningTbody.innerHTML = '';
   const afternoonTbody = document.getElementById('afternoon-table-body');
   afternoonTbody.innerHTML = '';
+
+  const morningTable = document.querySelector('.table-wrapper:first-child');
+  const afternoonTable = document.querySelector('.table-wrapper:last-child');
+  morningTable.style.display = 'block';
+  afternoonTable.style.display = 'block';
 
   if (morningData.length === 0) {
     morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the morning.</td></tr>`;

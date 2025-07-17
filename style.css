@@ -87,6 +87,26 @@ nav ul li i {
   margin-left: 0;
 }
 
+.stock-take .filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.stock-take .table-container-split {
+  display: flex;
+  gap: 1rem;
+}
+
+.stock-take .table-wrapper {
+  flex: 1;
+}
+
+.stock-take .table-wrapper h2 {
+  margin-bottom: 1rem;
+}
+
 #modal-container {
   position: fixed;
   top: 0;
