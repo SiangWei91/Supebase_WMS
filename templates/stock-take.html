@@ -1,18 +1,34 @@
 <div class="stock-take">
   <h1>Stock Take</h1>
+  <div class="filters">
+    <div class="form-group">
+      <label for="coldroom-select">Coldroom:</label>
+      <select id="coldroom-select">
+        <option value="CR1">Coldroom 1</option>
+        <option value="CR2">Coldroom 2</option>
+        <option value="CR3A">Coldroom 3A</option>
+        <option value="B15">Blk 15</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="date-picker">Date:</label>
+      <input type="date" id="date-picker">
+    </div>
+    <button id="search-btn" class="btn btn-primary">Search</button>
+  </div>
   <div class="table-container">
     <table class="stock-take-table">
       <thead>
         <tr>
-          <th>Column 1</th>
-          <th>Column 2</th>
-          <th>Column 3</th>
-          <th>Column 4</th>
-          <th>Column 5</th>
-          <th>Column 6</th>
-          <th>Column 7</th>
-          <th>Column 8</th>
-          <th>Column 9</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Item Code</th>
+          <th>Product Description</th>
+          <th>Packing Size</th>
+          <th>Ctn</th>
+          <th>Item Code</th>
+          <th>Pkt</th>
+          <th>Stock Check By</th>
         </tr>
       </thead>
       <tbody id="stock-take-table-body">

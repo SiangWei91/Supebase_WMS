@@ -1,28 +1,12 @@
 import { supabase } from './supabase-client.js';
 
-export async function loadStockTakeData() {
-  const tbody = document.getElementById('stock-take-table-body');
-  if (!tbody) {
-    console.error("Stock take table body not found.");
-    return;
-  }
-  const thead = document.querySelector('.stock-take-table thead');
-  if (thead) {
-    thead.innerHTML = `
-      <tr>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Item Code</th>
-        <th>Product Description</th>
-        <th>Packing Size</th>
-        <th>Ctn</th>
-        <th>Item Code</th>
-        <th>Pkt</th>
-        <th>Stock Check By</th>
-      </tr>
-    `;
-  }
+let allData = {};
 
+export async function loadStockTakeData() {
+  const searchBtn = document.getElementById('search-btn');
+  searchBtn.addEventListener('click', displayData);
+
+  const tbody = document.getElementById('stock-take-table-body');
   tbody.innerHTML = `<tr><td colspan="9" class="text-center">Loading data...</td></tr>`;
 
   try {
@@ -38,37 +22,62 @@ export async function loadStockTakeData() {
       const errorText = await response.text();
       throw new Error(`Failed to fetch data: ${response.status} ${response.statusText} - ${errorText}`);
     }
-    const data = await response.json();
-    console.log('Raw data from Google Sheet:', data);
+    allData = await response.json();
 
-    if (data.error) {
-      throw new Error(data.error);
+    if (allData.error) {
+      throw new Error(allData.error);
     }
-
-    if (!data.CR2) {
-      throw new Error("CR2 data not found in the response.");
-    }
-
-    const cr2Data = data.CR2.slice(1, 11);
-
-    tbody.innerHTML = '';
-
-    if (cr2Data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found.</td></tr>`;
-      return;
-    }
-
-    cr2Data.forEach(row => {
-      const tr = document.createElement('tr');
-      for (let i = 0; i < 9; i++) {
-        const td = document.createElement('td');
-        td.textContent = row[i] || '';
-        tr.appendChild(td);
-      }
-      tbody.appendChild(tr);
-    });
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center">Please select a coldroom and date and click search.</td></tr>`;
   } catch (error) {
     console.error('Failed to load stock take data:', error);
     tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
   }
+}
+
+function displayData() {
+  const coldroom = document.getElementById('coldroom-select').value;
+  const datePicker = document.getElementById('date-picker');
+  const selectedDate = datePicker.value;
+
+  if (!selectedDate) {
+    alert('Please select a date.');
+    return;
+  }
+
+  const selectedDateObject = new Date(selectedDate);
+
+  const tableData = allData[coldroom];
+  if (!tableData) {
+    const tbody = document.getElementById('stock-take-table-body');
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found for the selected coldroom.</td></tr>`;
+    return;
+  }
+
+  const filteredData = tableData.slice(1).filter(row => {
+    if (!row[0]) {
+      return false;
+    }
+    const rowDate = new Date(row[0]);
+    return rowDate.getFullYear() === selectedDateObject.getFullYear() &&
+           rowDate.getMonth() === selectedDateObject.getMonth() &&
+           rowDate.getDate() === selectedDateObject.getDate();
+  });
+
+  const tbody = document.getElementById('stock-take-table-body');
+  tbody.innerHTML = '';
+
+  if (filteredData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found for the selected date.</td></tr>`;
+    return;
+  }
+
+  filteredData.forEach(row => {
+    const tr = document.createElement('tr');
+    for (let i = 0; i < 9; i++) {
+      const td = document.createElement('td');
+      td.textContent = row[i] || '';
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
 }
