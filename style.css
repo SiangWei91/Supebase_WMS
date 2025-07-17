@@ -176,17 +176,13 @@ nav ul li i {
 }
 
 .search-box input {
-  padding-left: 30px;
   border-radius: 5px;
   border: 1px solid #ccc;
   padding: 8px;
 }
 
 .search-box .fa-search {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-left: -30px;
   color: #aaa;
 }
 

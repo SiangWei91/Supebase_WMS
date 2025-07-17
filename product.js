@@ -23,8 +23,8 @@ export async function loadProducts(contentElement) {
                 <h1>Product List</h1>
                 <div class="actions">
                     <div class="search-box">
-                        <i class="fas fa-search"></i>
                         <input type="text" id="product-search" placeholder="Search Product..." value="${escapeHtml(currentProductSearchTerm)}">
+                        <i class="fas fa-search"></i>
                     </div>
                     <button id="add-product-btn" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Product
@@ -86,7 +86,7 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
         const { data, error, count } = await supabase
             .from('products')
             .select('*', { count: 'exact' })
-            .or(`product_name.ilike.%${searchTerm}%,item_code.ilike.%${searchTerm}%`)
+            .or(`product_name.ilike.%${searchTerm}%,item_code.ilike.%${searchTerm}%,product_chinese_name.ilike.%${searchTerm}%`)
             .range((page - 1) * limit, page * limit - 1)
 
         if (signal.aborted) {
@@ -248,6 +248,10 @@ function loadAddProductForm(contentElement) {
                     <input type="text" id="name" name="name" required>
                 </div>
                 <div class="form-group">
+                    <label for="product_chinese_name">Chinese Name</label>
+                    <input type="text" id="product_chinese_name" name="product_chinese_name">
+                </div>
+                <div class="form-group">
                     <label for="packaging">Packing Size*</label>
                     <input type="text" id="packaging" name="packaging" required placeholder="Example: 250g x 40p">
                 </div>
@@ -274,6 +278,7 @@ async function handleAddProduct(e, contentElement) {
     const productData = {
         item_code: form.product_code.value,
         product_name: form.name.value,
+        product_chinese_name: form.product_chinese_name.value,
         packing_size: form.packaging.value
     };
 
