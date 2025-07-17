@@ -6,8 +6,8 @@ export async function loadStockTakeData() {
   const searchBtn = document.getElementById('search-btn');
   searchBtn.addEventListener('click', displayData);
 
-  const morningTable = document.querySelector('.table-wrapper:first-child');
-  const afternoonTable = document.querySelector('.table-wrapper:last-child');
+  const morningTable = document.getElementById('morning-wrapper');
+  const afternoonTable = document.getElementById('afternoon-wrapper');
   morningTable.style.display = 'none';
   afternoonTable.style.display = 'none';
 
@@ -33,6 +33,7 @@ export async function loadStockTakeData() {
     console.error('Failed to load stock take data:', error);
     const morningTbody = document.getElementById('morning-table-body');
     morningTbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+    const morningTable = document.getElementById('morning-wrapper');
     morningTable.style.display = 'block';
   }
 }
@@ -56,48 +57,106 @@ function displayData() {
     const afternoonTbody = document.getElementById('afternoon-table-body');
     morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the selected coldroom.</td></tr>`;
     afternoonTbody.innerHTML = '';
-    const morningTable = document.querySelector('.table-wrapper:first-child');
-    const afternoonTable = document.querySelector('.table-wrapper:last-child');
+    const morningTable = document.getElementById('morning-wrapper');
+    const afternoonTable = document.getElementById('afternoon-wrapper');
     morningTable.style.display = 'block';
     afternoonTable.style.display = 'none';
     return;
   }
 
-  const filteredData = tableData.slice(1).filter(row => {
-    if (!row[0]) {
-      return false;
-    }
-    return row[0] === formattedDate;
-  });
-
-  const morningTable = document.querySelector('.table-wrapper:first-child');
-  const afternoonTable = document.querySelector('.table-wrapper:last-child');
+  const morningTable = document.getElementById('morning-wrapper');
+  const afternoonTable = document.getElementById('afternoon-wrapper');
 
   morningTable.style.display = 'block';
   afternoonTable.style.display = 'block';
 
   if (coldroom === 'B15') {
-    afternoonTable.style.display = 'none';
+    const previousDateObject = new Date(selectedDateObject);
+    previousDateObject.setDate(previousDateObject.getDate() - 1);
+    const formattedPreviousDate = `${(previousDateObject.getDate()).toString().padStart(2, '0')}/${(previousDateObject.getMonth() + 1).toString().padStart(2, '0')}/${previousDateObject.getFullYear()}`;
+
+    const previousDayData = tableData.slice(1).filter(row => {
+      if (!row[0]) {
+        return false;
+      }
+      return row[0] === formattedPreviousDate;
+    });
+
+    const selectedDayData = tableData.slice(1).filter(row => {
+        if (!row[0]) {
+            return false;
+        }
+        return row[0] === formattedDate;
+    });
+
     const morningTbody = document.getElementById('morning-table-body');
     morningTbody.innerHTML = '';
-    if (filteredData.length === 0) {
-      morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the selected date.</td></tr>`;
-      return;
+    const afternoonTbody = document.getElementById('afternoon-table-body');
+    afternoonTbody.innerHTML = '';
+
+    document.querySelector('#morning-wrapper h2').textContent = formattedPreviousDate;
+    document.querySelector('#afternoon-wrapper h2').textContent = formattedDate;
+    document.querySelector('#afternoon-wrapper .comparison-header').style.display = '';
+
+    if (previousDayData.length === 0) {
+        morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for ${formattedPreviousDate}</td></tr>`;
+    } else {
+        previousDayData.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row[3] || ''}</td>
+                <td>${row[4] || ''}</td>
+                <td>${row[5] || ''}</td>
+                <td>${row[7] || ''}</td>
+            `;
+            morningTbody.appendChild(tr);
+        });
     }
-    filteredData.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${row[3] || ''}</td>
-        <td>${row[4] || ''}</td>
-        <td>${row[5] || ''}</td>
-        <td>${row[7] || ''}</td>
-      `;
-      morningTbody.appendChild(tr);
-    });
+
+    if (selectedDayData.length === 0) {
+        afternoonTbody.innerHTML = `<tr><td colspan="5" class="text-center">No data found for ${formattedDate}</td></tr>`;
+    } else {
+        const previousDayItems = {};
+        previousDayData.forEach(row => {
+            previousDayItems[row[2]] = { ctn: parseInt(row[5], 10) || 0 };
+        });
+
+        selectedDayData.forEach(row => {
+            const itemCode = row[2];
+            const previousDayItem = previousDayItems[itemCode];
+            let ctnDiff = 0;
+            if (previousDayItem) {
+                const selectedDayCtn = parseInt(row[5], 10) || 0;
+                ctnDiff = selectedDayCtn - previousDayItem.ctn;
+            }
+
+            const ctnColor = ctnDiff > 0 ? 'green' : (ctnDiff < 0 ? 'red' : 'black');
+            const ctnSign = ctnDiff > 0 ? '+' : '';
+            const ctnDisplay = ctnDiff === 0 ? '' : `${ctnSign}${ctnDiff}`;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row[3] || ''}</td>
+                <td>${row[4] || ''}</td>
+                <td>${row[5] || ''}</td>
+                <td>${row[7] || ''}</td>
+                <td style="color: ${ctnColor}; background-color: #e0f7ff;">${ctnDisplay}</td>
+            `;
+            afternoonTbody.appendChild(tr);
+        });
+    }
+
     return;
   }
 
-  const morningData = filteredData.filter(row => {
+  document.querySelector('#morning-wrapper h2').textContent = 'Morning';
+  document.querySelector('#afternoon-wrapper h2').textContent = 'Afternoon';
+  document.querySelector('#afternoon-wrapper .comparison-header').style.display = '';
+
+  const morningData = tableData.slice(1).filter(row => {
+    if (!row[0] || row[0] !== formattedDate) {
+      return false;
+    }
     if (!row[1]) {
       return false;
     }
@@ -106,7 +165,10 @@ function displayData() {
     return hour < 12;
   });
 
-  const afternoonData = filteredData.filter(row => {
+  const afternoonData = tableData.slice(1).filter(row => {
+    if (!row[0] || row[0] !== formattedDate) {
+        return false;
+    }
     if (!row[1]) {
       return false;
     }
