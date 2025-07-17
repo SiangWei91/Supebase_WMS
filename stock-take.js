@@ -9,10 +9,18 @@ export async function loadStockTakeData() {
 
   try {
     const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/get-sheet-data');
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch data: ${response.status} ${response.statusText} - ${errorText}`);
+    }
     const data = await response.json();
 
     if (data.error) {
       throw new Error(data.error);
+    }
+
+    if (!data.CR2) {
+      throw new Error("CR2 data not found in the response.");
     }
 
     const cr2Data = data.CR2.slice(0, 10);
