@@ -39,6 +39,7 @@ export async function loadStockTakeData() {
       throw new Error(`Failed to fetch data: ${response.status} ${response.statusText} - ${errorText}`);
     }
     const data = await response.json();
+    console.log('Raw data from Google Sheet:', data);
 
     if (data.error) {
       throw new Error(data.error);
