@@ -3,11 +3,11 @@ import * as XLSX from 'xlsx';
 const shipmentModuleState = {
     allExtractedData: {},
     viewDefinitions: [
-        { name: 'Jordon',    displayName: 'Jordon',    columns: ['A', 'B', 'C'], filterColumnLetter: 'C' },
-        { name: 'Lineage',   displayName: 'Lineage',   columns: ['A', 'B', 'D'], filterColumnLetter: 'D' },
-        { name: 'Blk15',     displayName: 'Blk15',     columns: ['A', 'B', 'E'], filterColumnLetter: 'E' },
-        { name: 'Coldroom6', displayName: 'Coldroom 6',columns: ['A', 'B', 'F'], filterColumnLetter: 'F' },
-        { name: 'Coldroom5', displayName: 'Coldroom 5',columns: ['A', 'B', 'G'], filterColumnLetter: 'G' }
+        { name: 'Jordon',    displayName: 'Jordon',    filterColumnLetter: 'C' },
+        { name: 'Lineage',   displayName: 'Lineage',   filterColumnLetter: 'D' },
+        { name: 'Blk 15',    displayName: 'Blk15',     filterColumnLetter: 'E' },
+        { name: 'Coldroom 6',displayName: 'Coldroom 6',filterColumnLetter: 'F' },
+        { name: 'Coldroom 5',displayName: 'Coldroom 5',filterColumnLetter: 'G' }
     ],
     isInitialized: false,
     currentResultsContainer: null,
