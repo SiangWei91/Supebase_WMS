@@ -1,0 +1,40 @@
+export async function loadStockTakeData() {
+  const tbody = document.getElementById('stock-take-table-body');
+  if (!tbody) {
+    console.error("Stock take table body not found.");
+    return;
+  }
+
+  tbody.innerHTML = `<tr><td colspan="10" class="text-center">Loading data...</td></tr>`;
+
+  try {
+    const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/get-sheet-data');
+    const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    const cr2Data = data.CR2.slice(0, 10);
+
+    tbody.innerHTML = '';
+
+    if (cr2Data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="text-center">No data found.</td></tr>`;
+      return;
+    }
+
+    cr2Data.forEach(row => {
+      const tr = document.createElement('tr');
+      for (let i = 0; i < 10; i++) {
+        const td = document.createElement('td');
+        td.textContent = row[i] || '';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    });
+  } catch (error) {
+    console.error('Failed to load stock take data:', error);
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+  }
+}
