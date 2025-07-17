@@ -48,6 +48,9 @@ const loadContent = async (page) => {
         } else if (page === 'stock-take') {
           const module = await import('/stock-take.js');
           module.loadStockTakeData(content);
+        } else if (page === 'shipment') {
+          const module = await import('/shipment.js');
+          module.loadShipmentPage(content);
         }
       } else {
         content.innerHTML = '<p>Page not found.</p>';
