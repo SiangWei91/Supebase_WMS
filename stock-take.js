@@ -140,25 +140,21 @@ function displayData() {
   } else {
     const morningItems = {};
     morningData.forEach(row => {
-      morningItems[row[2]] = { ctn: parseInt(row[5], 10) || 0, pkt: parseInt(row[7], 10) || 0 };
+      morningItems[row[2]] = { ctn: parseInt(row[5], 10) || 0 };
     });
 
     afternoonData.forEach(row => {
       const itemCode = row[2];
       const morningItem = morningItems[itemCode];
       let ctnDiff = 0;
-      let pktDiff = 0;
       if (morningItem) {
         const afternoonCtn = parseInt(row[5], 10) || 0;
-        const afternoonPkt = parseInt(row[7], 10) || 0;
         ctnDiff = afternoonCtn - morningItem.ctn;
-        pktDiff = afternoonPkt - morningItem.pkt;
       }
 
       const ctnColor = ctnDiff > 0 ? 'green' : (ctnDiff < 0 ? 'red' : 'black');
-      const pktColor = pktDiff > 0 ? 'green' : (pktDiff < 0 ? 'red' : 'black');
       const ctnSign = ctnDiff > 0 ? '+' : '';
-      const pktSign = pktDiff > 0 ? '+' : '';
+      const ctnDisplay = ctnDiff === 0 ? '' : `${ctnSign}${ctnDiff}`;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -166,7 +162,7 @@ function displayData() {
         <td>${row[4] || ''}</td>
         <td>${row[5] || ''}</td>
         <td>${row[7] || ''}</td>
-        <td><span style="color: ${ctnColor}">${ctnSign}${ctnDiff}</span> / <span style="color: ${pktColor}">${pktSign}${pktDiff}</span></td>
+        <td style="color: ${ctnColor}; background-color: #e0f7ff;">${ctnDisplay}</td>
       `;
       afternoonTbody.appendChild(tr);
     });

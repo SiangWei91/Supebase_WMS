@@ -117,6 +117,10 @@ nav ul li i {
   background-color: #e0f7ff;
 }
 
+#afternoon-table-body td:last-child {
+  background-color: #e0f7ff;
+}
+
 .stock-take .filters select,
 .stock-take .filters input[type="date"] {
   padding: 8px;
