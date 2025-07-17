@@ -45,6 +45,7 @@ function displayData() {
   }
 
   const selectedDateObject = new Date(selectedDate);
+  const formattedDate = `${(selectedDateObject.getDate()).toString().padStart(2, '0')}/${(selectedDateObject.getMonth() + 1).toString().padStart(2, '0')}/${selectedDateObject.getFullYear()}`;
 
   const tableData = allData[coldroom];
   if (!tableData) {
@@ -57,10 +58,7 @@ function displayData() {
     if (!row[0]) {
       return false;
     }
-    const rowDate = new Date(row[0]);
-    return rowDate.getFullYear() === selectedDateObject.getFullYear() &&
-           rowDate.getMonth() === selectedDateObject.getMonth() &&
-           rowDate.getDate() === selectedDateObject.getDate();
+    return row[0] === formattedDate;
   });
 
   const tbody = document.getElementById('stock-take-table-body');
