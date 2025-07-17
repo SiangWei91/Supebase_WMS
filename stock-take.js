@@ -44,20 +44,20 @@ export async function loadStockTakeData() {
       throw new Error(data.error);
     }
 
-    if (!data.CR3A) {
-      throw new Error("CR3A data not found in the response.");
+    if (!data.CR2) {
+      throw new Error("CR2 data not found in the response.");
     }
 
-    const cr3aData = data.CR3A.slice(1, 11);
+    const cr2Data = data.CR2.slice(1, 11);
 
     tbody.innerHTML = '';
 
-    if (cr3aData.length === 0) {
+    if (cr2Data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found.</td></tr>`;
       return;
     }
 
-    cr3aData.forEach(row => {
+    cr2Data.forEach(row => {
       const tr = document.createElement('tr');
       for (let i = 0; i < 9; i++) {
         const td = document.createElement('td');
