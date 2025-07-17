@@ -113,6 +113,10 @@ nav ul li i {
   margin-bottom: 1rem;
 }
 
+.comparison-header {
+  background-color: #e0f7ff;
+}
+
 .stock-take .filters select,
 .stock-take .filters input[type="date"] {
   padding: 8px;

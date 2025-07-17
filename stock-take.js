@@ -136,7 +136,7 @@ function displayData() {
   }
 
   if (afternoonData.length === 0) {
-    afternoonTbody.innerHTML = `<tr><td colspan="6" class="text-center">No data found for the afternoon.</td></tr>`;
+    afternoonTbody.innerHTML = `<tr><td colspan="5" class="text-center">No data found for the afternoon.</td></tr>`;
   } else {
     const morningItems = {};
     morningData.forEach(row => {
@@ -166,8 +166,7 @@ function displayData() {
         <td>${row[4] || ''}</td>
         <td>${row[5] || ''}</td>
         <td>${row[7] || ''}</td>
-        <td style="color: ${ctnColor}">${ctnSign}${ctnDiff}</td>
-        <td style="color: ${pktColor}">${pktSign}${pktDiff}</td>
+        <td><span style="color: ${ctnColor}">${ctnSign}${ctnDiff}</span> / <span style="color: ${pktColor}">${pktSign}${pktDiff}</span></td>
       `;
       afternoonTbody.appendChild(tr);
     });
