@@ -122,10 +122,20 @@ nav ul li i {
 }
 
 .stock-take .filters select,
-.stock-take .filters input[type="date"] {
+.stock-take .filters input[type="date"],
+.stock-take .filters button {
   padding: 8px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  height: 38px;
+}
+
+.stock-take .comparison-header {
+  width: 100px;
+}
+
+#afternoon-table-body td:last-child {
+  text-align: center;
 }
 
 .stock-take-table {

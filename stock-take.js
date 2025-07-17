@@ -64,6 +64,21 @@ function displayData() {
     return;
   }
 
+  const filteredData = tableData.slice(1).filter(row => {
+    if (!row[0]) {
+      return false;
+    }
+    return row[0] === formattedDate;
+  }).sort((a, b) => {
+    if (a[2] < b[2]) {
+      return -1;
+    }
+    if (a[2] > b[2]) {
+      return 1;
+    }
+    return 0;
+  });
+
   const morningTable = document.getElementById('morning-wrapper');
   const afternoonTable = document.getElementById('afternoon-wrapper');
 
@@ -80,14 +95,17 @@ function displayData() {
         return false;
       }
       return row[0] === formattedPreviousDate;
+    }).sort((a, b) => {
+      if (a[2] < b[2]) {
+        return -1;
+      }
+      if (a[2] > b[2]) {
+        return 1;
+      }
+      return 0;
     });
 
-    const selectedDayData = tableData.slice(1).filter(row => {
-        if (!row[0]) {
-            return false;
-        }
-        return row[0] === formattedDate;
-    });
+    const selectedDayData = filteredData;
 
     const morningTbody = document.getElementById('morning-table-body');
     morningTbody.innerHTML = '';
@@ -153,10 +171,7 @@ function displayData() {
   document.querySelector('#afternoon-wrapper h2').textContent = 'Afternoon';
   document.querySelector('#afternoon-wrapper .comparison-header').style.display = '';
 
-  const morningData = tableData.slice(1).filter(row => {
-    if (!row[0] || row[0] !== formattedDate) {
-      return false;
-    }
+  const morningData = filteredData.filter(row => {
     if (!row[1]) {
       return false;
     }
@@ -165,12 +180,9 @@ function displayData() {
     return hour < 12;
   });
 
-  const afternoonData = tableData.slice(1).filter(row => {
-    if (!row[0] || row[0] !== formattedDate) {
-        return false;
-    }
+  const afternoonData = filteredData.filter(row => {
     if (!row[1]) {
-      return false;
+        return false;
     }
     const time = row[1].split(':');
     const hour = parseInt(time[0], 10);
