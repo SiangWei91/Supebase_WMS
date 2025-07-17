@@ -92,6 +92,12 @@ nav ul li i {
   gap: 1rem;
   margin-bottom: 1rem;
   align-items: center;
+  margin-top: 1rem;
+}
+
+.stock-take-table td:nth-child(1) {
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .stock-take .table-container-split {

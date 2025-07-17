@@ -8,8 +8,13 @@ export async function loadStockTakeData() {
 
   const morningTable = document.querySelector('.table-wrapper:first-child');
   const afternoonTable = document.querySelector('.table-wrapper:last-child');
+  const comparisonTable = document.getElementById('comparison-table-body');
   morningTable.style.display = 'none';
   afternoonTable.style.display = 'none';
+  if (comparisonTable) {
+    comparisonTable.parentElement.style.display = 'none';
+  }
+
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -60,6 +65,10 @@ function displayData() {
     const afternoonTable = document.querySelector('.table-wrapper:last-child');
     morningTable.style.display = 'block';
     afternoonTable.style.display = 'none';
+    const comparisonTable = document.getElementById('comparison-table-body');
+    if (comparisonTable) {
+      comparisonTable.parentElement.style.display = 'none';
+    }
     return;
   }
 
@@ -69,6 +78,41 @@ function displayData() {
     }
     return row[0] === formattedDate;
   });
+
+  const morningTable = document.querySelector('.table-wrapper:first-child');
+  const afternoonTable = document.querySelector('.table-wrapper:last-child');
+  const comparisonTable = document.getElementById('comparison-table-body');
+
+  morningTable.style.display = 'block';
+  afternoonTable.style.display = 'block';
+  if (comparisonTable) {
+    comparisonTable.parentElement.style.display = 'block';
+  }
+
+
+  if (coldroom === 'B15') {
+    afternoonTable.style.display = 'none';
+    if (comparisonTable) {
+      comparisonTable.parentElement.style.display = 'none';
+    }
+    const morningTbody = document.getElementById('morning-table-body');
+    morningTbody.innerHTML = '';
+    if (filteredData.length === 0) {
+      morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the selected date.</td></tr>`;
+      return;
+    }
+    filteredData.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row[3] || ''}</td>
+        <td>${row[4] || ''}</td>
+        <td>${row[5] || ''}</td>
+        <td>${row[7] || ''}</td>
+      `;
+      morningTbody.appendChild(tr);
+    });
+    return;
+  }
 
   const morningData = filteredData.filter(row => {
     if (!row[1]) {
@@ -92,11 +136,6 @@ function displayData() {
   morningTbody.innerHTML = '';
   const afternoonTbody = document.getElementById('afternoon-table-body');
   afternoonTbody.innerHTML = '';
-
-  const morningTable = document.querySelector('.table-wrapper:first-child');
-  const afternoonTable = document.querySelector('.table-wrapper:last-child');
-  morningTable.style.display = 'block';
-  afternoonTable.style.display = 'block';
 
   if (morningData.length === 0) {
     morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the morning.</td></tr>`;
@@ -125,6 +164,38 @@ function displayData() {
         <td>${row[7] || ''}</td>
       `;
       afternoonTbody.appendChild(tr);
+    });
+  }
+
+  if (comparisonTable) {
+    comparisonTable.innerHTML = '';
+    const morningItems = {};
+    morningData.forEach(row => {
+      morningItems[row[2]] = { ctn: parseInt(row[5], 10) || 0, pkt: parseInt(row[7], 10) || 0 };
+    });
+
+    afternoonData.forEach(row => {
+      const itemCode = row[2];
+      if (morningItems[itemCode]) {
+        const morningItem = morningItems[itemCode];
+        const afternoonCtn = parseInt(row[5], 10) || 0;
+        const afternoonPkt = parseInt(row[7], 10) || 0;
+        const ctnDiff = afternoonCtn - morningItem.ctn;
+        const pktDiff = afternoonPkt - morningItem.pkt;
+
+        const ctnColor = ctnDiff > 0 ? 'green' : 'red';
+        const pktColor = pktDiff > 0 ? 'green' : 'red';
+        const ctnSign = ctnDiff > 0 ? '+' : '';
+        const pktSign = pktDiff > 0 ? '+' : '';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row[3] || ''}</td>
+          <td style="color: ${ctnColor}">${ctnSign}${ctnDiff}</td>
+          <td style="color: ${pktColor}">${pktSign}${pktDiff}</td>
+        `;
+        comparisonTable.appendChild(tr);
+      }
     });
   }
 }
