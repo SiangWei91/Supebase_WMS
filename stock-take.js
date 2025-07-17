@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client.js';
+
 export async function loadStockTakeData() {
   const tbody = document.getElementById('stock-take-table-body');
   if (!tbody) {
@@ -8,7 +10,14 @@ export async function loadStockTakeData() {
   tbody.innerHTML = `<tr><td colspan="10" class="text-center">Loading data...</td></tr>`;
 
   try {
-    const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/get-sheet-data');
+    const { data: { session } } = await supabase.auth.getSession();
+    const accessToken = session.access_token;
+
+    const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/get-sheet-data', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    });
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Failed to fetch data: ${response.status} ${response.statusText} - ${errorText}`);
