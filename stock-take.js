@@ -6,8 +6,11 @@ export async function loadStockTakeData() {
   const searchBtn = document.getElementById('search-btn');
   searchBtn.addEventListener('click', displayData);
 
-  const tbody = document.getElementById('stock-take-table-body');
-  tbody.innerHTML = `<tr><td colspan="9" class="text-center">Loading data...</td></tr>`;
+  const morningTbody = document.getElementById('morning-table-body');
+  const afternoonTbody = document.getElementById('afternoon-table-body');
+  morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">Loading data...</td></tr>`;
+  afternoonTbody.innerHTML = `<tr><td colspan="4" class="text-center"></td></tr>`;
+
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -27,10 +30,10 @@ export async function loadStockTakeData() {
     if (allData.error) {
       throw new Error(allData.error);
     }
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center">Please select a coldroom and date and click search.</td></tr>`;
+    morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">Please select a coldroom and date and click search.</td></tr>`;
   } catch (error) {
     console.error('Failed to load stock take data:', error);
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+    morningTbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
   }
 }
 
@@ -49,8 +52,10 @@ function displayData() {
 
   const tableData = allData[coldroom];
   if (!tableData) {
-    const tbody = document.getElementById('stock-take-table-body');
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found for the selected coldroom.</td></tr>`;
+    const morningTbody = document.getElementById('morning-table-body');
+    const afternoonTbody = document.getElementById('afternoon-table-body');
+    morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the selected coldroom.</td></tr>`;
+    afternoonTbody.innerHTML = '';
     return;
   }
 
@@ -61,21 +66,56 @@ function displayData() {
     return row[0] === formattedDate;
   });
 
-  const tbody = document.getElementById('stock-take-table-body');
-  tbody.innerHTML = '';
+  const morningData = filteredData.filter(row => {
+    if (!row[1]) {
+      return false;
+    }
+    const time = row[1].split(':');
+    const hour = parseInt(time[0], 10);
+    return hour < 12;
+  });
 
-  if (filteredData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found for the selected date.</td></tr>`;
-    return;
+  const afternoonData = filteredData.filter(row => {
+    if (!row[1]) {
+      return false;
+    }
+    const time = row[1].split(':');
+    const hour = parseInt(time[0], 10);
+    return hour >= 12;
+  });
+
+  const morningTbody = document.getElementById('morning-table-body');
+  morningTbody.innerHTML = '';
+  const afternoonTbody = document.getElementById('afternoon-table-body');
+  afternoonTbody.innerHTML = '';
+
+  if (morningData.length === 0) {
+    morningTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the morning.</td></tr>`;
+  } else {
+    morningData.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row[3] || ''}</td>
+        <td>${row[4] || ''}</td>
+        <td>${row[5] || ''}</td>
+        <td>${row[7] || ''}</td>
+      `;
+      morningTbody.appendChild(tr);
+    });
   }
 
-  filteredData.forEach(row => {
-    const tr = document.createElement('tr');
-    for (let i = 0; i < 9; i++) {
-      const td = document.createElement('td');
-      td.textContent = row[i] || '';
-      tr.appendChild(td);
-    }
-    tbody.appendChild(tr);
-  });
+  if (afternoonData.length === 0) {
+    afternoonTbody.innerHTML = `<tr><td colspan="4" class="text-center">No data found for the afternoon.</td></tr>`;
+  } else {
+    afternoonData.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row[3] || ''}</td>
+        <td>${row[4] || ''}</td>
+        <td>${row[5] || ''}</td>
+        <td>${row[7] || ''}</td>
+      `;
+      afternoonTbody.appendChild(tr);
+    });
+  }
 }

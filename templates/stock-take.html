@@ -16,23 +16,36 @@
     </div>
     <button id="search-btn" class="btn btn-primary">Search</button>
   </div>
-  <div class="table-container">
-    <table class="stock-take-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Item Code</th>
-          <th>Product Description</th>
-          <th>Packing Size</th>
-          <th>Ctn</th>
-          <th>Item Code</th>
-          <th>Pkt</th>
-          <th>Stock Check By</th>
-        </tr>
-      </thead>
-      <tbody id="stock-take-table-body">
-      </tbody>
-    </table>
+  <div class="table-container-split">
+    <div class="table-wrapper">
+      <h2>Morning</h2>
+      <table class="stock-take-table">
+        <thead>
+          <tr>
+            <th>Product Description</th>
+            <th>Packing Size</th>
+            <th>Ctn</th>
+            <th>Pkt</th>
+          </tr>
+        </thead>
+        <tbody id="morning-table-body">
+        </tbody>
+      </table>
+    </div>
+    <div class="table-wrapper">
+      <h2>Afternoon</h2>
+      <table class="stock-take-table">
+        <thead>
+          <tr>
+            <th>Product Description</th>
+            <th>Packing Size</th>
+            <th>Ctn</th>
+            <th>Pkt</th>
+          </tr>
+        </thead>
+        <tbody id="afternoon-table-body">
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
