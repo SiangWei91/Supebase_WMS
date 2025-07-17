@@ -87,6 +87,7 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
             .from('products')
             .select('*', { count: 'exact' })
             .or(`product_name.ilike.%${searchTerm}%,item_code.ilike.%${searchTerm}%,product_chinese_name.ilike.%${searchTerm}%`)
+            .order('item_code', { ascending: true })
             .range((page - 1) * limit, page * limit - 1)
 
         if (signal.aborted) {
