@@ -469,3 +469,62 @@ function escapeHtml(unsafe) {
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
 }
+
+export async function lookupOrCreateProduct(itemCode, excelProductDescription, excelPackingSize) {
+    if (!itemCode) {
+        console.warn("lookupOrCreateProduct (shipment.js): itemCode is missing.");
+        return { productName: excelProductDescription, packingSize: excelPackingSize, isNew: false, error: 'Missing itemCode', productId: null, productCode: itemCode };
+    }
+
+    try {
+        let { data: product, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('item_code', itemCode)
+            .single();
+
+        if (product) {
+            return {
+                productId: product.id,
+                productCode: product.item_code,
+                productName: product.product_name || excelProductDescription,
+                packingSize: product.packing_size || excelPackingSize,
+                isNew: false
+            };
+        } else {
+            const newProductData = {
+                item_code: itemCode,
+                product_name: excelProductDescription,
+                packing_size: excelPackingSize
+            };
+
+            const { data: addedProduct, error: addError } = await supabase
+                .from('products')
+                .insert([newProductData])
+                .select()
+                .single();
+
+            if (addError) {
+                throw addError;
+            }
+
+            return {
+                productId: addedProduct.id,
+                productCode: addedProduct.item_code,
+                productName: addedProduct.product_name,
+                packingSize: addedProduct.packing_size,
+                isNew: true
+            };
+        }
+    } catch (error) {
+        console.error(`Error in lookupOrCreateProduct for itemCode ${itemCode}:`, error);
+        return {
+            productName: excelProductDescription,
+            packingSize: excelPackingSize,
+            isNew: false,
+            error: `Product API interaction error: ${error.message}`,
+            productId: null,
+            productCode: itemCode
+        };
+    }
+}

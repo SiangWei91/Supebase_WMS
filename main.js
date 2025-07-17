@@ -51,6 +51,8 @@ const loadContent = async (page) => {
         } else if (page === 'shipment') {
           const module = await import('/shipment.js');
           module.loadShipmentPage(content);
+          const allocationModule = await import('/shipment-allocation.js');
+          allocationModule.loadShipmentAllocationPage();
         }
       } else {
         content.innerHTML = '<p>Page not found.</p>';
