@@ -6,8 +6,24 @@ export async function loadStockTakeData() {
     console.error("Stock take table body not found.");
     return;
   }
+  const thead = document.querySelector('.stock-take-table thead');
+  if (thead) {
+    thead.innerHTML = `
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Item Code</th>
+        <th>Product Description</th>
+        <th>Packing Size</th>
+        <th>Ctn</th>
+        <th>Item Code</th>
+        <th>Pkt</th>
+        <th>Stock Check By</th>
+      </tr>
+    `;
+  }
 
-  tbody.innerHTML = `<tr><td colspan="10" class="text-center">Loading data...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="9" class="text-center">Loading data...</td></tr>`;
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -32,18 +48,18 @@ export async function loadStockTakeData() {
       throw new Error("CR2 data not found in the response.");
     }
 
-    const cr2Data = data.CR2.slice(0, 10);
+    const cr2Data = data.CR2.slice(1, 11);
 
     tbody.innerHTML = '';
 
     if (cr2Data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="10" class="text-center">No data found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center">No data found.</td></tr>`;
       return;
     }
 
     cr2Data.forEach(row => {
       const tr = document.createElement('tr');
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 9; i++) {
         const td = document.createElement('td');
         td.textContent = row[i] || '';
         tr.appendChild(td);
@@ -52,6 +68,6 @@ export async function loadStockTakeData() {
     });
   } catch (error) {
     console.error('Failed to load stock take data:', error);
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
   }
 }
