@@ -107,6 +107,35 @@ nav ul li i {
   margin-bottom: 1rem;
 }
 
+.stock-take .filters select,
+.stock-take .filters input[type="date"] {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.stock-take-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stock-take-table th,
+.stock-take-table td {
+  padding: 13px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.stock-take-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.stock-take-table tr:hover {
+  background-color: #f8f9fa;
+}
+
 #modal-container {
   position: fixed;
   top: 0;
