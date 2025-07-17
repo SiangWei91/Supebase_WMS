@@ -1,25 +1,23 @@
 <div class="shipment">
   <div class="tab-container">
-    <div class="tab-header">
-      <button class="tab-link active" onclick="openTab(event, 'shipment-list')">Shipment List</button>
-      <button class="tab-link" onclick="openTab(event, 'shipment-upload')">Shipment Upload</button>
-      <button class="tab-link" onclick="openTab(event, 'shipment-allocation')">Shipment Allocation</button>
-    </div>
+    <div class="tab active" onclick="openTab(event, 'shipment-list')">Shipment List</div>
+    <div class="tab" onclick="openTab(event, 'shipment-upload')">Shipment Upload</div>
+    <div class="tab" onclick="openTab(event, 'shipment-allocation')">Shipment Allocation</div>
+  </div>
 
-    <div id="shipment-list" class="tab-content" style="display: block;">
-      <h2>Shipment List</h2>
-      <p>Coming soon...</p>
-    </div>
+  <div id="shipment-list" class="tab-content" style="display: block;">
+    <h2>Shipment List</h2>
+    <p>Coming soon...</p>
+  </div>
 
-    <div id="shipment-upload" class="tab-content">
-      <h2>Shipment Upload</h2>
-      <p>Coming soon...</p>
-    </div>
+  <div id="shipment-upload" class="tab-content" style="display: none;">
+    <h2>Shipment Upload</h2>
+    <p>Coming soon...</p>
+  </div>
 
-    <div id="shipment-allocation" class="tab-content">
-      <h2>Shipment Allocation</h2>
-      <p>Coming soon...</p>
-    </div>
+  <div id="shipment-allocation" class="tab-content" style="display: none;">
+    <h2>Shipment Allocation</h2>
+    <p>Coming soon...</p>
   </div>
 </div>
 
@@ -30,7 +28,7 @@ function openTab(evt, tabName) {
   for (i = 0; i < tabcontent.length; i++) {
     tabcontent[i].style.display = "none";
   }
-  tablinks = document.getElementsByClassName("tab-link");
+  tablinks = document.getElementsByClassName("tab");
   for (i = 0; i < tablinks.length; i++) {
     tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
