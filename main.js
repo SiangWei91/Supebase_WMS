@@ -44,7 +44,7 @@ const loadContent = async (page) => {
         content.innerHTML = await response.text();
         if (page === 'product') {
           const module = await import('/product.js');
-          module.loadProducts(content);
+          module.loadProducts(content, supabase);
         } else if (page === 'stock-take') {
           const module = await import('/stock-take.js');
           module.loadStockTakeData(content);

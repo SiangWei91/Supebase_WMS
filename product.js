@@ -1,5 +1,3 @@
-import { supabase } from './supabase-client.js'
-
 // State variables for pagination
 let productFetchController = null; // To abort previous fetches
 let currentProductSearchTerm = '';
@@ -11,7 +9,7 @@ let totalNumPages = 1;
 let totalNumItems = 0;
 let globalHasNextPage = false;
 
-export async function loadProducts(contentElement) {
+export async function loadProducts(contentElement, supabase) {
     const content = contentElement || document.getElementById('content');
     if (!content) {
         console.error("Content element not found. Cannot load products page.");
@@ -52,12 +50,12 @@ export async function loadProducts(contentElement) {
 
     const addProductBtn = document.getElementById('add-product-btn');
     if (addProductBtn) {
-        addProductBtn.addEventListener('click', () => loadAddProductForm(content));
+        addProductBtn.addEventListener('click', () => loadAddProductForm(content, supabase));
     }
 
     const productSearchInput = document.getElementById('product-search');
     if (productSearchInput) {
-        productSearchInput.addEventListener('input', handleProductSearch);
+        productSearchInput.addEventListener('input', (e) => handleProductSearch(e, supabase));
     }
 
     currentPageNum = 1;
@@ -65,10 +63,10 @@ export async function loadProducts(contentElement) {
         searchTerm: currentProductSearchTerm,
         limit: PRODUCTS_PER_PAGE,
         page: currentPageNum
-    });
+    }, supabase);
 }
 
-async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page = 1 } = {}) {
+async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page = 1 } = {}, supabase) {
     const tbody = document.getElementById('products-table-body');
     if (!tbody) {
         console.error("Products table body not found. Cannot fetch products.");
@@ -99,14 +97,14 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
             throw error
         }
 
-        renderProductsTable(data);
+        renderProductsTable(data, supabase);
 
         totalNumItems = count
         totalNumPages = Math.ceil(totalNumItems / limit)
         currentPageNum = page
         globalHasNextPage = page < totalNumPages
 
-        renderPagination();
+        renderPagination(supabase);
 
     } catch (error) {
         if (error.name === 'AbortError') {
@@ -124,7 +122,7 @@ async function fetchProducts({ searchTerm = '', limit = PRODUCTS_PER_PAGE, page 
     }
 }
 
-function renderProductsTable(products) {
+function renderProductsTable(products, supabase) {
     const tbody = document.getElementById('products-table-body');
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -178,17 +176,17 @@ function renderProductsTable(products) {
     });
 
     document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => viewProduct(e.target.closest('button').dataset.id));
+        btn.addEventListener('click', (e) => viewProduct(e.target.closest('button').dataset.id, supabase));
     });
     document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => editProduct(e.target.closest('button').dataset.id));
+        btn.addEventListener('click', (e) => editProduct(e.target.closest('button').dataset.id, supabase));
     });
     document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => deleteProduct(e.target.closest('button').dataset.id));
+        btn.addEventListener('click', (e) => deleteProduct(e.target.closest('button').dataset.id, supabase));
     });
 }
 
-function renderPagination() {
+function renderPagination(supabase) {
     const paginationDiv = document.getElementById('pagination');
     if (!paginationDiv) return;
     paginationDiv.innerHTML = '';
@@ -202,7 +200,7 @@ function renderPagination() {
     prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Previous';
     prevBtn.addEventListener('click', () => {
         if (currentPageNum > 1) {
-            fetchProducts({ searchTerm: currentProductSearchTerm, limit: PRODUCTS_PER_PAGE, page: currentPageNum - 1 });
+            fetchProducts({ searchTerm: currentProductSearchTerm, limit: PRODUCTS_PER_PAGE, page: currentPageNum - 1 }, supabase);
         }
     });
     paginationDiv.appendChild(prevBtn);
@@ -218,19 +216,19 @@ function renderPagination() {
     nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
     nextBtn.addEventListener('click', () => {
         if (globalHasNextPage) {
-            fetchProducts({ searchTerm: currentProductSearchTerm, limit: PRODUCTS_PER_PAGE, page: currentPageNum + 1 });
+            fetchProducts({ searchTerm: currentProductSearchTerm, limit: PRODUCTS_PER_PAGE, page: currentPageNum + 1 }, supabase);
         }
     });
     paginationDiv.appendChild(nextBtn);
 }
 
-function handleProductSearch(e) {
+function handleProductSearch(e, supabase) {
     currentProductSearchTerm = e.target.value.trim();
     currentPageNum = 1;
-    fetchProducts({ searchTerm: currentProductSearchTerm, limit: PRODUCTS_PER_PAGE, page: currentPageNum });
+    fetchProducts({ searchTerm: currentProductSearchTerm, limit: PRODUCTS_PER_PAGE, page: currentPageNum }, supabase);
 }
 
-function loadAddProductForm(contentElement) {
+function loadAddProductForm(contentElement, supabase) {
     const content = contentElement || document.getElementById('content');
      if (!content) return;
     if (typeof window.clearAllPageMessages === 'function') {
@@ -264,13 +262,13 @@ function loadAddProductForm(contentElement) {
         </div>
     `;
     const cancelBtn = document.getElementById('cancel-btn');
-    if(cancelBtn) cancelBtn.addEventListener('click', () => { currentProductSearchTerm = ''; currentPageNum = 1; loadProducts(content); });
+    if(cancelBtn) cancelBtn.addEventListener('click', () => { currentProductSearchTerm = ''; currentPageNum = 1; loadProducts(content, supabase); });
 
     const productForm = document.getElementById('product-form');
-    if(productForm) productForm.addEventListener('submit', (e) => handleAddProduct(e, content));
+    if(productForm) productForm.addEventListener('submit', (e) => handleAddProduct(e, content, supabase));
 }
 
-async function handleAddProduct(e, contentElement) {
+async function handleAddProduct(e, contentElement, supabase) {
     e.preventDefault();
     if (typeof window.clearAllPageMessages === 'function') {
         window.clearAllPageMessages();
@@ -293,14 +291,14 @@ async function handleAddProduct(e, contentElement) {
         alert('产品添加成功!');
         currentProductSearchTerm = '';
         currentPageNum = 1;
-        loadProducts(contentElement);
+        loadProducts(contentElement, supabase);
     } catch (error) {
         console.error('添加产品失败:', error);
         alert('添加产品失败: ' + error.message);
     }
 }
 
-async function viewProduct(productId) {
+async function viewProduct(productId, supabase) {
     try {
         const { data: product, error } = await supabase
             .from('products')
@@ -339,7 +337,7 @@ async function viewProduct(productId) {
     }
 }
 
-async function editProduct(productId) {
+async function editProduct(productId, supabase) {
     const content = document.getElementById('content');
     try {
         const { data: product, error } = await supabase
@@ -380,15 +378,15 @@ async function editProduct(productId) {
                 </div>
             `;
             const cancelEditBtn = document.getElementById('cancel-edit-product-btn');
-            if(cancelEditBtn) cancelEditBtn.addEventListener('click', () => { currentPageNum = 1; loadProducts(content); });
+            if(cancelEditBtn) cancelEditBtn.addEventListener('click', () => { currentPageNum = 1; loadProducts(content, supabase); });
 
             const editForm = document.getElementById('edit-product-form');
-            if(editForm) editForm.addEventListener('submit', (e) => handleUpdateProduct(e, content));
+            if(editForm) editForm.addEventListener('submit', (e) => handleUpdateProduct(e, content, supabase));
 
         } else {
             alert('Product not found for editing.');
             currentPageNum = 1;
-            loadProducts(content);
+            loadProducts(content, supabase);
         }
     } catch (error) {
         console.error('Failed to fetch product for editing:', error);
@@ -396,7 +394,7 @@ async function editProduct(productId) {
     }
 }
 
-async function deleteProduct(productId) {
+async function deleteProduct(productId, supabase) {
     const content = document.getElementById('content');
     if (confirm(`Are you sure you want to delete this product (ID: ${escapeHtml(productId)})?`)) {
         try {
@@ -408,7 +406,7 @@ async function deleteProduct(productId) {
                 throw error
             }
             alert('Product deleted successfully!');
-            loadProducts(content);
+            loadProducts(content, supabase);
         } catch (error) {
             console.error('Failed to delete product:', error);
             alert('Failed to delete product: ' + error.message);
@@ -416,7 +414,7 @@ async function deleteProduct(productId) {
     }
 }
 
-async function handleUpdateProduct(e, contentElement) {
+async function handleUpdateProduct(e, contentElement, supabase) {
     e.preventDefault();
     const form = e.target;
     const productId = form.dataset.productId;
@@ -448,7 +446,7 @@ async function handleUpdateProduct(e, contentElement) {
             throw error
         }
         alert('Product updated successfully!');
-        loadProducts(contentElement);
+        loadProducts(contentElement, supabase);
     } catch (error) {
         console.error('Failed to update product:', error);
         alert('Failed to update product: ' + error.message);
@@ -470,7 +468,7 @@ function escapeHtml(unsafe) {
          .replace(/'/g, "&#039;");
 }
 
-export async function lookupOrCreateProduct(itemCode, excelProductDescription, excelPackingSize) {
+export async function lookupOrCreateProduct(itemCode, excelProductDescription, excelPackingSize, supabase) {
     if (!itemCode) {
         console.warn("lookupOrCreateProduct (shipment.js): itemCode is missing.");
         return { productName: excelProductDescription, packingSize: excelPackingSize, isNew: false, error: 'Missing itemCode', productId: null, productCode: itemCode };
@@ -498,23 +496,56 @@ export async function lookupOrCreateProduct(itemCode, excelProductDescription, e
                 packing_size: excelPackingSize
             };
 
-            const { data: addedProduct, error: addError } = await supabase
-                .from('products')
-                .insert([newProductData])
-                .select()
-                .single();
+            try {
+                const { data: addedProduct, error: addError } = await supabase
+                    .from('products')
+                    .insert([newProductData])
+                    .select()
+                    .single();
 
-            if (addError) {
-                throw addError;
+                if (addError) {
+                    // Re-throw if it's not the duplicate key error
+                    if (addError.code !== '23505') {
+                        throw addError;
+                    }
+                    // If it is the duplicate key error, it means another process inserted it.
+                    // We can now query for that product.
+                    const { data: existingProduct, error: queryError } = await supabase
+                        .from('products')
+                        .select('*')
+                        .eq('item_code', itemCode)
+                        .single();
+
+                    if (queryError) throw queryError;
+
+                    return {
+                        productId: existingProduct.id,
+                        productCode: existingProduct.item_code,
+                        productName: existingProduct.product_name,
+                        packingSize: existingProduct.packing_size,
+                        isNew: false // It was new to us, but not to the database
+                    };
+                }
+
+                return {
+                    productId: addedProduct.id,
+                    productCode: addedProduct.item_code,
+                    productName: addedProduct.product_name,
+                    packingSize: addedProduct.packing_size,
+                    isNew: true
+                };
+            } catch (error) {
+                // This outer catch is for other potential errors during the process
+                console.error(`Error in lookupOrCreateProduct during insert for itemCode ${itemCode}:`, error);
+                return {
+                    productName: excelProductDescription,
+                    packingSize: excelPackingSize,
+                    isNew: false,
+                    error: `Product API interaction error: ${error.message}`,
+                    productId: null,
+                    productCode: itemCode
+                };
             }
-
-            return {
-                productId: addedProduct.id,
-                productCode: addedProduct.item_code,
-                productName: addedProduct.product_name,
-                packingSize: addedProduct.packing_size,
-                isNew: true
-            };
         }
     } catch (error) {
         console.error(`Error in lookupOrCreateProduct for itemCode ${itemCode}:`, error);
