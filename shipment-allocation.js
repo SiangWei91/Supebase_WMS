@@ -490,7 +490,7 @@ async function updateInventory() {
                 item_code: productId,
                 warehouse_id: item.warehouse_id,
                 batch_no: item.batchNo,
-                quantity: Math.abs(parseFloat(item.quantity)),
+                quantity: parseFloat(item.quantity),
                 container: shipmentModuleState.containerNumber,
                 details: {}
             };
@@ -509,24 +509,23 @@ async function updateInventory() {
 
             let { data: existingInventory, error: selectError } = await supabase
                 .from('inventory')
-                .select('id')
+                .select('id, batch_no')
                 .eq('item_code', item.itemCode)
-                .eq('warehouse_id', item.warehouse_id)
-                .eq('batch_no', item.batchNo)
-                .single()
-                .abortSignal(new AbortController().signal); // This is a workaround to set the header
+                .eq('warehouse_id', item.warehouse_id);
 
             if (selectError && selectError.code !== 'PGRST116') {
                 console.error('Select Error:', selectError);
                 throw selectError;
             }
 
-            if (existingInventory) {
+            const existingRecord = existingInventory && existingInventory.find(record => record.batch_no === item.batchNo);
+
+            if (existingRecord) {
                 console.log('Updating existing inventory:', inventoryData);
                 const { error: updateError } = await supabase
                     .from('inventory')
                     .update(inventoryData)
-                    .eq('id', existingInventory.id);
+                    .eq('id', existingRecord.id);
                 if (updateError) {
                     console.error('Update Error:', updateError);
                     throw updateError;
@@ -547,7 +546,7 @@ async function updateInventory() {
                 item_code: item.itemCode,
                 warehouse_id: item.warehouse_id,
                 batch_no: item.batchNo,
-                quantity: Math.abs(parseFloat(item.quantity)),
+                quantity: parseFloat(item.quantity),
                 transaction_date: new Date().toISOString().split('T')[0],
             };
 
