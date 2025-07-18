@@ -475,7 +475,7 @@ async function updateInventory() {
                 item_code: productId,
                 warehouse_id: item.warehouse_id,
                 batch_no: item.batchNo,
-                quantity: parseFloat(item.quantity),
+                quantity: Math.abs(parseFloat(item.quantity)),
                 container: shipmentModuleState.containerNumber,
                 details: {}
             };
@@ -497,7 +497,7 @@ async function updateInventory() {
                 .select('id')
                 .eq('item_code', item.itemCode)
                 .eq('warehouse_id', item.warehouse_id)
-                .eq('batch_no', item.batchNo)
+                .eq('batch_no', encodeURIComponent(item.batchNo))
                 .single();
 
             if (selectError && selectError.code !== 'PGRST116') {
