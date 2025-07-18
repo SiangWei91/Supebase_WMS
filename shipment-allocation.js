@@ -513,7 +513,8 @@ async function updateInventory() {
                 .eq('item_code', item.itemCode)
                 .eq('warehouse_id', item.warehouse_id)
                 .eq('batch_no', item.batchNo)
-                .single();
+                .single()
+                .abortSignal(new AbortController().signal); // This is a workaround to set the header
 
             if (selectError && selectError.code !== 'PGRST116') {
                 console.error('Select Error:', selectError);
