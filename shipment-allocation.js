@@ -507,43 +507,13 @@ async function updateInventory() {
                 };
             }
 
-            let { data: existingInventory, error: selectError } = await supabase
+            console.log('Inserting new inventory:', inventoryData);
+            const { error: insertError } = await supabase
                 .from('inventory')
-                .select('id, batch_no')
-                .eq('item_code', item.itemCode)
-                .eq('warehouse_id', item.warehouse_id);
-
-            if (selectError) {
-                console.error('Select Error:', selectError);
-                throw selectError;
-            }
-
-            if (selectError && selectError.code !== 'PGRST116') {
-                console.error('Select Error:', selectError);
-                throw selectError;
-            }
-
-            const existingRecord = existingInventory && existingInventory.find(record => record.batch_no === item.batchNo);
-
-            if (existingRecord) {
-                console.log('Updating existing inventory:', inventoryData);
-                const { error: updateError } = await supabase
-                    .from('inventory')
-                    .update(inventoryData)
-                    .eq('id', existingRecord.id);
-                if (updateError) {
-                    console.error('Update Error:', updateError);
-                    throw updateError;
-                }
-            } else {
-                console.log('Inserting new inventory:', inventoryData);
-                const { error: insertError } = await supabase
-                    .from('inventory')
-                    .insert([inventoryData]);
-                if (insertError) {
-                    console.error('Insert Error:', insertError);
-                    throw insertError;
-                }
+                .insert([inventoryData]);
+            if (insertError) {
+                console.error('Insert Error:', insertError);
+                throw insertError;
             }
 
             const transactionData = {
