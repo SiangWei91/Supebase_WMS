@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { supabase } from './supabase-client.js';
 
 const shipmentModuleState = {
     allExtractedData: {},
