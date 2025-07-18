@@ -476,8 +476,16 @@ function getCookie(name) {
 }
 
 async function updateInventory() {
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    loadingIndicator.style.display = 'block';
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.innerHTML = `
+        <div class="modal">
+            <div class="modal-body">
+                <div class="spinner"></div>
+                <p>Updating inventory...</p>
+            </div>
+        </div>
+    `;
+    modalContainer.style.display = 'flex';
 
     const allItems = [];
     for (const viewName in shipmentModuleState.allExtractedData) {
@@ -486,8 +494,7 @@ async function updateInventory() {
         for (let i = 0; i < viewData.length; i++) {
             const item = viewData[i];
             if (!item.itemCode) {
-                showModal(`Row ${i + 1} in the ${viewName} table is missing an item code.`);
-                loadingIndicator.style.display = 'none';
+                showModal('Error', `Row ${i + 1} in the ${viewName} table is missing an item code.`);
                 return;
             }
             allItems.push({ ...item, warehouse_id: warehouseId });
@@ -499,9 +506,8 @@ async function updateInventory() {
             const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
 
             if (!productId) {
-                showModal(`Could not find or create product with item code ${item.itemCode}.`);
-                loadingIndicator.style.display = 'none';
-                continue;
+                showModal('Error', `Could not find or create product with item code ${item.itemCode}.`);
+                return;
             }
 
             const inventoryData = {
@@ -552,36 +558,31 @@ async function updateInventory() {
 
         } catch (error) {
             console.error('Error updating inventory for item:', item.itemCode, error);
-            showModal(`Error updating inventory for item ${item.itemCode}: ${error.message}`);
-            loadingIndicator.style.display = 'none';
+            showModal('Error', `Error updating inventory for item ${item.itemCode}: ${error.message}`);
             return;
         }
     }
 
     shipmentModuleState.allExtractedData = {};
     displayExtractedData([]);
-    const pageMessages = document.getElementById('pageMessages');
-    pageMessages.innerHTML = '<div class="success-message">Inventory updated successfully!</div>';
-    loadingIndicator.style.display = 'none';
-    setTimeout(() => {
-        pageMessages.innerHTML = '';
-    }, 3000);
+    showModal('Success', 'Inventory updated successfully!');
 }
 
-function showModal(message) {
-    const modal = document.getElementById('itemNotFoundModal');
-    const modalMessage = document.getElementById('modalMessage');
-    modalMessage.textContent = message;
-    modal.style.display = 'block';
-
-    const closeButton = modal.querySelector('.close-button');
-    closeButton.onclick = function() {
-        modal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
+function showModal(title, message) {
+    const modalContainer = document.getElementById('modal-container');
+    modalContainer.innerHTML = `
+        <div class="modal">
+            <div class="modal-header">
+                <h2>${escapeHtml(title)}</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>${escapeHtml(message)}</p>
+            </div>
+        </div>
+    `;
+    modalContainer.style.display = 'flex';
+    modalContainer.querySelector('.modal-close').addEventListener('click', () => {
+        modalContainer.style.display = 'none';
+    });
 }
