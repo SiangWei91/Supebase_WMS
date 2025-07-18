@@ -49,7 +49,7 @@ function processWorkbook(workbook) {
     });
 
     shipmentModuleState.viewDefinitions.forEach(view => {
-        const sheet = workbook.Sheets[view.name];
+        const sheet = workbook.Sheets[view.displayName];
         if (sheet) {
             const sheetData = XLSX.utils.sheet_to_json(sheet, {header: 1, defval: ''});
             if (view.name === 'Jordon') {
