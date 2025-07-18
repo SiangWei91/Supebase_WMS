@@ -24,6 +24,7 @@ export function loadShipmentAllocationPage() {
     const resultsContainer = document.getElementById('resultsContainer');
     if (resultsContainer) {
         resultsContainer.addEventListener('change', handleCellEdit);
+        resultsContainer.addEventListener('click', handleRowRemoveClick);
     }
 
     const updateBtn = document.getElementById('updateInventoryBtn');
