@@ -507,13 +507,32 @@ async function updateInventory() {
                 };
             }
 
-            const { error: insertError } = await supabase
+            const { data: existing, error: selectError } = await supabase
                 .from('inventory')
-                .insert([inventoryData]);
+                .select('id, quantity')
+                .eq('item_code', productId)
+                .eq('warehouse_id', item.warehouse_id)
+                .eq('batch_no', item.batchNo)
+                .single();
 
-            if (insertError) {
-                console.error('Insert Error:', insertError);
-                throw insertError;
+            if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = not found
+                throw selectError;
+            }
+
+            if (existing) {
+                // Update existing record
+                const newQuantity = existing.quantity + parseFloat(item.quantity);
+                const { error: updateError } = await supabase
+                    .from('inventory')
+                    .update({ quantity: newQuantity })
+                    .match({ id: existing.id });
+                if (updateError) throw updateError;
+            } else {
+                // Insert new record
+                const { error: insertError } = await supabase
+                    .from('inventory')
+                    .insert([inventoryData]);
+                if (insertError) throw insertError;
             }
 
             const transactionData = {
