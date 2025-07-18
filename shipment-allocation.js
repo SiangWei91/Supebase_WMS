@@ -5,9 +5,9 @@ const shipmentModuleState = {
     viewDefinitions: [
         { name: 'Jordon',    displayName: 'Jordon',    filterColumnLetter: 'C' },
         { name: 'Lineage',   displayName: 'Lineage',   filterColumnLetter: 'D' },
-        { name: 'Blk 15',    displayName: 'Blk15',     filterColumnLetter: 'E' },
-        { name: 'Coldroom 6',displayName: 'Coldroom 6',filterColumnLetter: 'F' },
-        { name: 'Coldroom 5',displayName: 'Coldroom 5',filterColumnLetter: 'G' }
+        { name: 'Blk 15',    displayName: 'Blk15',     filterColumnLetter: 'E', columns: ['A', 'B', 'C'] },
+        { name: 'Coldroom 6',displayName: 'Coldroom 6',filterColumnLetter: 'F', columns: ['A', 'B', 'C'] },
+        { name: 'Coldroom 5',displayName: 'Coldroom 5',filterColumnLetter: 'G', columns: ['A', 'B', 'C'] }
     ],
     isInitialized: false,
     currentResultsContainer: null,
