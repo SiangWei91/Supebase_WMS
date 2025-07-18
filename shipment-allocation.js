@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { supabase } from './supabase-client.js';
 
 const shipmentModuleState = {
     allExtractedData: {},
@@ -24,6 +25,7 @@ export function loadShipmentAllocationPage() {
     const resultsContainer = document.getElementById('resultsContainer');
     if (resultsContainer) {
         resultsContainer.addEventListener('change', handleCellEdit);
+        resultsContainer.addEventListener('click', handleRowRemoveClick);
     }
 
     const updateBtn = document.getElementById('updateInventoryBtn');
@@ -385,13 +387,6 @@ function updateButtonState() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const updateBtn = document.getElementById('updateInventoryBtn');
-    if (updateBtn) {
-        updateBtn.addEventListener('click', updateInventory);
-    }
-});
-
 function handleRowRemoveClick(event) {
     if (event.target.classList.contains('remove-row-btn')) {
         const rowIndex = parseInt(event.target.dataset.rowIndex, 10);
@@ -416,40 +411,31 @@ function handleCellEdit(event) {
     }
 }
 
-async function updateInventory() {
-    const allItems = [];
-    for (const viewName in shipmentModuleState.allExtractedData) {
-        const viewData = shipmentModuleState.allExtractedData[viewName];
-        const warehouseInfo = await getWarehouseInfo(viewName);
-        viewData.forEach(item => {
-            allItems.push({ ...item, warehouseId: warehouseInfo.warehouseId });
-        });
+async function lookupOrCreateProduct(itemCode, productName, packingSize) {
+    let { data: product, error } = await supabase
+        .from('products')
+        .select('item_code')
+        .eq('item_code', itemCode)
+        .single();
+
+    if (error && error.code === 'PGRST116') { // Not found
+        const { data: newProduct, error: insertError } = await supabase
+            .from('products')
+            .insert([{ item_code: itemCode, product_name: productName, packing_size: packingSize }])
+            .select('item_code')
+            .single();
+
+        if (insertError) {
+            console.error('Error creating product:', insertError);
+            return { productId: null };
+        }
+        return { productId: newProduct.item_code };
+    } else if (error) {
+        console.error('Error looking up product:', error);
+        return { productId: null };
     }
 
-    const updates = [];
-    for (const item of allItems) {
-        const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
-        if (productId) {
-            updates.push({
-                product_id: productId,
-                warehouse_id: item.warehouseId,
-                quantity: item.quantity,
-                batch_no: item.batchNo,
-                pallet: item.pallet
-            });
-        }
-    }
-
-    try {
-        const { error } = await supabase.from('inventory').upsert(updates, { onConflict: ['product_id', 'warehouse_id', 'batch_no'] });
-        if (error) {
-            throw error;
-        }
-        alert('Inventory updated successfully!');
-    } catch (error) {
-        console.error('Error updating inventory:', error);
-        alert('Error updating inventory: ' + error.message);
-    }
+    return { productId: product.item_code };
 }
 
 async function getWarehouseInfo(viewDisplayName) {
@@ -466,3 +452,93 @@ async function getWarehouseInfo(viewDisplayName) {
     return { warehouseId };
 }
 
+async function updateInventory() {
+    const allItems = [];
+    for (const viewName in shipmentModuleState.allExtractedData) {
+        const viewData = shipmentModuleState.allExtractedData[viewName];
+        const { warehouseId } = await getWarehouseInfo(viewName);
+        viewData.forEach(item => {
+            allItems.push({ ...item, warehouse_id: warehouseId });
+        });
+    }
+
+    for (const item of allItems) {
+        try {
+            const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
+
+            if (!productId) {
+                alert(`Could not find or create product with item code ${item.itemCode}.`);
+                continue;
+            }
+
+            const inventoryData = {
+                item_code: productId,
+                warehouse_id: item.warehouse_id,
+                batch_no: item.batchNo,
+                quantity: item.quantity,
+                container: shipmentModuleState.containerNumber,
+                status: 'Pending',
+                details: {}
+            };
+
+            if (item.warehouse_id === 'jordon' || item.warehouse_id === 'lineage') {
+                inventoryData.details = {
+                    pallet: item.pallet,
+                    status: "Pending",
+                    location: "",
+                    lotNumber: "",
+                    dateStored: shipmentModuleState.storedDate,
+                    palletType: "",
+                    llm_item_code: item.llmItemCode || ""
+                };
+            }
+
+            let { data: existingInventory, error: selectError } = await supabase
+                .from('inventory')
+                .select('id')
+                .eq('item_code', item.itemCode)
+                .eq('warehouse_id', item.warehouse_id)
+                .eq('batch_no', item.batchNo)
+                .single();
+
+            if (selectError && selectError.code !== 'PGRST116') {
+                throw selectError;
+            }
+
+            if (existingInventory) {
+                const { error: updateError } = await supabase
+                    .from('inventory')
+                    .update(inventoryData)
+                    .eq('id', existingInventory.id);
+                if (updateError) throw updateError;
+            } else {
+                const { error: insertError } = await supabase
+                    .from('inventory')
+                    .insert([inventoryData]);
+                if (insertError) throw insertError;
+            }
+
+            const transactionData = {
+                transaction_type: 'IN',
+                item_code: item.itemCode,
+                warehouse_id: item.warehouse_id,
+                batch_no: item.batchNo,
+                quantity: item.quantity,
+                transaction_date: new Date().toISOString().split('T')[0],
+            };
+
+            const { error: transactionError } = await supabase
+                .from('transactions')
+                .insert([transactionData]);
+
+            if (transactionError) throw transactionError;
+
+        } catch (error) {
+            console.error('Error updating inventory for item:', item.itemCode, error);
+            alert(`Error updating inventory for item ${item.itemCode}: ${error.message}`);
+            return;
+        }
+    }
+
+    alert('Inventory updated successfully!');
+}
