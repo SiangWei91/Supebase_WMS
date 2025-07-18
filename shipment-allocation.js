@@ -42,15 +42,17 @@ function processWorkbook(workbook) {
     const sheet1Data = XLSX.utils.sheet_to_json(sheet1, {header: 1, defval: ''});
 
     const sheet1LookupMap = new Map();
-    sheet1Data.forEach(row => {
-        const itemCode = String(row[0] || '').trim();
+    for (let i = 0; i < sheet1Data.length - 1; i++) {
+        const row = sheet1Data[i];
+        const nextRow = sheet1Data[i+1];
+        const itemCode = String(row[1] || '').trim();
         if (itemCode) {
             sheet1LookupMap.set(itemCode, {
-                packingSize: String(row[2] || '').trim(),
-                batchNo: String(row[3] || '').trim()
+                packingSize: String(nextRow[2] || '').trim(),
+                batchNo: String(nextRow[3] || '').trim()
             });
         }
-    });
+    }
 
     const convertSheet = workbook.Sheets['Convert'];
     const convertSheetData = XLSX.utils.sheet_to_json(convertSheet, {header: 1, defval: ''});
