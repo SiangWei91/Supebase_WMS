@@ -122,6 +122,8 @@
   background-color: #f8f9fa;
   border-radius: 4px 4px 0 0;
   flex-grow: 1; /* Allows tab navigation to take up available space */
+  margin-top: 20px;
+  list-style: none;
 }
 
 /* Individual Tab Styling (using the .shipment-tab class) */
