@@ -475,9 +475,8 @@ async function updateInventory() {
                 item_code: productId,
                 warehouse_id: item.warehouse_id,
                 batch_no: item.batchNo,
-                quantity: item.quantity,
+                quantity: parseFloat(item.quantity),
                 container: shipmentModuleState.containerNumber,
-                status: 'Pending',
                 details: {}
             };
 
@@ -502,20 +501,29 @@ async function updateInventory() {
                 .single();
 
             if (selectError && selectError.code !== 'PGRST116') {
+                console.error('Select Error:', selectError);
                 throw selectError;
             }
 
             if (existingInventory) {
+                console.log('Updating existing inventory:', inventoryData);
                 const { error: updateError } = await supabase
                     .from('inventory')
                     .update(inventoryData)
                     .eq('id', existingInventory.id);
-                if (updateError) throw updateError;
+                if (updateError) {
+                    console.error('Update Error:', updateError);
+                    throw updateError;
+                }
             } else {
+                console.log('Inserting new inventory:', inventoryData);
                 const { error: insertError } = await supabase
                     .from('inventory')
                     .insert([inventoryData]);
-                if (insertError) throw insertError;
+                if (insertError) {
+                    console.error('Insert Error:', insertError);
+                    throw insertError;
+                }
             }
 
             const transactionData = {
