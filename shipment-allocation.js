@@ -20,6 +20,17 @@ export function loadShipmentAllocationPage() {
     if (fileInput) {
         fileInput.addEventListener('change', handleFile, false);
     }
+
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+        resultsContainer.addEventListener('change', handleCellEdit);
+        resultsContainer.addEventListener('click', handleRowRemoveClick);
+    }
+
+    const updateBtn = document.getElementById('updateInventoryBtn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', updateInventory);
+    }
 }
 
 function handleFile(e) {
@@ -337,7 +348,7 @@ function displayExtractedData(data) {
         if (activeViewName === 'Jordon' || activeViewName === 'Lineage') {
             const palletColIdx = currentDataKeys.indexOf('pallet');
             if (palletColIdx > 0) {
-                footerCells[palletColIdx - 1] = `<td><strong>Total:</strong></td>`;
+                footerCells[palletColIdx - 1] = `<td><strong>Total :</strong></td>`;
             }
             footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
             const quantityColIdx = currentDataKeys.indexOf('quantity');

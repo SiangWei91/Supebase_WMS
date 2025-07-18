@@ -106,9 +106,12 @@
 /* Tab Action Bar - Container for tabs and update button */
 .tab-action-bar {
   display: flex;
-  align-items: flex-end; /* Aligns button with the bottom of the tab bar */
-  margin-bottom: 0; /* Let the #shipmentTabNav define the bottom visual if it has a border */
-  position: relative;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#shipmentTabNav {
+    margin-top: 0;
 }
 
 
