@@ -1,5 +1,4 @@
 import * as XLSX from 'xlsx';
-import { supabase } from './supabase-client.js';
 
 const shipmentModuleState = {
     allExtractedData: {},
@@ -25,7 +24,6 @@ export function loadShipmentAllocationPage() {
     const resultsContainer = document.getElementById('resultsContainer');
     if (resultsContainer) {
         resultsContainer.addEventListener('change', handleCellEdit);
-        resultsContainer.addEventListener('click', handleRowRemoveClick);
     }
 
     const updateBtn = document.getElementById('updateInventoryBtn');
@@ -52,21 +50,6 @@ function processWorkbook(workbook) {
         return;
     }
     const sheet1Data = XLSX.utils.sheet_to_json(sheet1, {header: 1, defval: ''});
-
-    const containerNumberCell = sheet1['J2'];
-    shipmentModuleState.containerNumber = containerNumberCell ? containerNumberCell.v : 'N/A';
-
-    const jordonSheet = workbook.Sheets['Jordon'];
-    if (jordonSheet) {
-        const storedDateCell = jordonSheet['D10'];
-        let storedDate = storedDateCell ? storedDateCell.w || storedDateCell.v : 'N/A';
-        if (storedDate !== 'N/A') {
-            storedDate = reformatDateToDDMMYYYY(storedDate);
-        }
-        shipmentModuleState.storedDate = storedDate;
-    } else {
-        shipmentModuleState.storedDate = 'N/A';
-    }
 
     const sheet1LookupMap = new Map();
     for (let i = 0; i < sheet1Data.length - 1; i++) {
@@ -310,14 +293,6 @@ function displayExtractedData(data) {
     shipmentModuleState.currentResultsContainer = resultsContainer;
     if (!resultsContainer) return;
 
-    const shipmentDetailsContainer = document.getElementById('shipmentDetailsContainer');
-    if (shipmentDetailsContainer) {
-        shipmentDetailsContainer.innerHTML = `
-            <p><strong>Container Number:</strong> ${escapeHtml(shipmentModuleState.containerNumber)}</p>
-            <p><strong>Stored Date:</strong> ${escapeHtml(shipmentModuleState.storedDate)}</p>
-        `;
-    }
-
     let html = '';
     if (!data || data.length === 0) {
         html += '<p>No data to display for this view.</p>';
@@ -370,16 +345,13 @@ function displayExtractedData(data) {
         const footerCells = new Array(numFooterCells).fill('<td></td>');
 
         if (activeViewName === 'Jordon' || activeViewName === 'Lineage') {
-            const quantityColIdx = currentDataKeys.indexOf('quantity');
             const palletColIdx = currentDataKeys.indexOf('pallet');
-
-            if (quantityColIdx > 0) {
-                 footerCells[quantityColIdx - 1] = `<td><strong>Total :</strong></td>`;
-            }
-            footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
             if (palletColIdx > 0) {
-                footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
+                footerCells[palletColIdx - 1] = `<td><strong>Total :</strong></td>`;
             }
+            footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
+            const quantityColIdx = currentDataKeys.indexOf('quantity');
+            footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
         } else {
             if (quantityColIdx !== -1) {
                 const batchNoColIdx = currentDataKeys.indexOf('batchNo');
@@ -413,6 +385,12 @@ function updateButtonState() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const updateBtn = document.getElementById('updateInventoryBtn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', updateInventory);
+    }
+});
 
 function handleRowRemoveClick(event) {
     if (event.target.classList.contains('remove-row-btn')) {
@@ -426,129 +404,6 @@ function handleRowRemoveClick(event) {
     }
 }
 
-async function getWarehouseInfo(viewDisplayName) {
-    let warehouseId = '';
-    switch (viewDisplayName) {
-        case 'Jordon': warehouseId = 'Jordon'; break;
-        case 'Lineage': warehouseId = 'lineage'; break;
-        case 'Blk15': warehouseId = 'blk15'; break;
-        case 'Coldroom 6': warehouseId = 'coldroom6'; break;
-        case 'Coldroom 5': warehouseId = 'coldroom5'; break;
-        default:
-            warehouseId = viewDisplayName.toLowerCase().replace(/\s+/g, '');
-    }
-    return { warehouseId };
-}
-
-async function updateInventory() {
-    const allItems = [];
-    for (const viewName in shipmentModuleState.allExtractedData) {
-        const viewData = shipmentModuleState.allExtractedData[viewName];
-        const { warehouseId } = await getWarehouseInfo(viewName);
-        viewData.forEach(item => {
-            allItems.push({ ...item, warehouse_id: warehouseId });
-        });
-    }
-
-    for (const item of allItems) {
-        try {
-            // Check if product exists, if not create it
-            let { data: product, error: productError } = await supabase
-                .from('products')
-                .select('item_code')
-                .eq('item_code', item.itemCode)
-                .single();
-
-            if (productError && productError.code === 'PGRST116') { // Not found
-                const { error: insertError } = await supabase
-                    .from('products')
-                    .insert([{
-                        item_code: item.itemCode,
-                        product_name: item.productDescription,
-                        packing_size: item.packingSize
-                    }]);
-                if (insertError) throw insertError;
-            } else if (productError) {
-                throw productError;
-            }
-
-            // Prepare inventory data
-            const inventoryData = {
-                item_code: item.itemCode,
-                warehouse_id: item.warehouse_id,
-                batch_no: item.batchNo,
-                quantity: item.quantity,
-                container: shipmentModuleState.containerNumber,
-                status: 'Pending',
-                details: {}
-            };
-
-            if (item.warehouse_id === 'Jordon' || item.warehouse_id === 'lineage') {
-                inventoryData.details = {
-                    pallet: item.pallet,
-                    status: "Pending",
-                    location: "",
-                    lotNumber: "",
-                    dateStored: shipmentModuleState.storedDate,
-                    palletType: "",
-                    llm_item_code: item.llmItemCode || ""
-                };
-            }
-
-            // Check if inventory record exists
-            let { data: existingInventory, error: selectError } = await supabase
-                .from('inventory')
-                .select('id')
-                .eq('item_code', item.itemCode)
-                .eq('warehouse_id', item.warehouse_id)
-                .eq('batch_no', item.batchNo)
-                .single();
-
-            if (selectError && selectError.code !== 'PGRST116') { // Ignore 'not found' error
-                throw selectError;
-            }
-
-            if (existingInventory) {
-                // Update existing record
-                const { error: updateError } = await supabase
-                    .from('inventory')
-                    .update(inventoryData)
-                    .eq('id', existingInventory.id);
-                if (updateError) throw updateError;
-            } else {
-                // Insert new record
-                const { error: insertError } = await supabase
-                    .from('inventory')
-                    .insert([inventoryData]);
-                if (insertError) throw insertError;
-            }
-
-            // Create transaction record
-            const transactionData = {
-                transaction_type: 'IN',
-                item_code: item.itemCode,
-                warehouse_id: item.warehouse_id,
-                batch_no: item.batchNo,
-                quantity: item.quantity,
-                transaction_date: new Date().toISOString().split('T')[0],
-            };
-
-            const { error: transactionError } = await supabase
-                .from('transactions')
-                .insert([transactionData]);
-
-            if (transactionError) throw transactionError;
-
-        } catch (error) {
-            console.error('Error updating inventory for item:', item.itemCode, error);
-            alert(`Error updating inventory for item ${item.itemCode}: ${error.message}`);
-            return; // Stop on first error
-        }
-    }
-
-    alert('Inventory updated successfully!');
-}
-
 function handleCellEdit(event) {
     if (event.target.classList.contains('editable-cell-input')) {
         const rowIndex = parseInt(event.target.dataset.rowIndex, 10);
@@ -558,6 +413,80 @@ function handleCellEdit(event) {
         if (activeViewName && shipmentModuleState.allExtractedData[activeViewName] && shipmentModuleState.allExtractedData[activeViewName][rowIndex]) {
             shipmentModuleState.allExtractedData[activeViewName][rowIndex][columnKey] = newValue;
         }
+    }
+}
+
+async function updateInventory() {
+    const allItems = [];
+    for (const viewName in shipmentModuleState.allExtractedData) {
+        const viewData = shipmentModuleState.allExtractedData[viewName];
+        const warehouseInfo = await getWarehouseInfo(viewName);
+        viewData.forEach(item => {
+            allItems.push({ ...item, warehouseId: warehouseInfo.warehouseId });
+        });
+    }
+
+    const updates = [];
+    for (const item of allItems) {
+        const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
+        if (productId) {
+            updates.push({
+                product_id: productId,
+                warehouse_id: item.warehouseId,
+                quantity: item.quantity,
+                batch_no: item.batchNo,
+                pallet: item.pallet
+            });
+        }
+    }
+
+    try {
+        const { error } = await supabase.from('inventory').upsert(updates, { onConflict: ['product_id', 'warehouse_id', 'batch_no'] });
+        if (error) {
+            throw error;
+        }
+        alert('Inventory updated successfully!');
+    } catch (error) {
+        console.error('Error updating inventory:', error);
+        alert('Error updating inventory: ' + error.message);
+    }
+}
+
+async function getWarehouseInfo(viewDisplayName) {
+    let warehouseIdKey = '';
+    switch (viewDisplayName) {
+        case 'Jordon': warehouseId = 'jordon'; break;
+        case 'Lineage': warehouseIdKey = 'lineage'; break;
+        case 'Blk15': warehouseIdKey = 'blk15'; break;
+        case 'Coldroom 6': warehouseIdKey = 'coldroom6'; break;
+        case 'Coldroom 5': warehouseIdKey = 'coldroom5'; break;
+        default:
+            const generatedId = viewDisplayName.toLowerCase().replace(/\s+/g, '');
+            warehouseIdKey = generatedId;
+    }
+
+    try {
+        const { data: warehouseData, error } = await supabase
+            .from('warehouses')
+            .select('id')
+            .eq('id', warehouseIdKey)
+            .single();
+
+        if (error) {
+            if (error.code === 'PGRST116') {
+                 return { warehouseId: warehouseIdKey, error: `Warehouse doc ${warehouseIdKey} not found in Supabase` };
+            }
+            throw error;
+        }
+
+        if (warehouseData) {
+            return { warehouseId: warehouseData.id };
+        } else {
+            return { warehouseId: warehouseIdKey, error: `Warehouse doc ${warehouseIdKey} not found (no data returned)` };
+        }
+    } catch (error) {
+        console.error(`Error fetching warehouse ${warehouseIdKey} from Supabase:`, error);
+        return { warehouseId: warehouseIdKey, error: `Error fetching warehouse ${warehouseIdKey}: ${error.message}` };
     }
 }
 
