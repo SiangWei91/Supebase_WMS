@@ -468,6 +468,12 @@ async function getWarehouseInfo(viewDisplayName) {
     return { warehouseId };
 }
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
 async function updateInventory() {
     const loadingIndicator = document.getElementById('loadingIndicator');
     loadingIndicator.style.display = 'block';
@@ -524,6 +530,7 @@ async function updateInventory() {
                 .insert([inventoryData]);
             if (insertError) throw insertError;
 
+            const userName = getCookie('userName');
             const transactionData = {
                 transaction_type: 'inbound',
                 item_code: item.itemCode,
@@ -531,6 +538,7 @@ async function updateInventory() {
                 batch_no: item.batchNo,
                 quantity: parseFloat(item.quantity),
                 transaction_date: new Date().toISOString().split('T')[0],
+                operator_id: userName
             };
 
             const { error: transactionError } = await supabase
