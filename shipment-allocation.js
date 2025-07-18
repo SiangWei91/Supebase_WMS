@@ -334,24 +334,24 @@ function displayExtractedData(data) {
         const numFooterCells = currentDataKeys.length + 1;
         const footerCells = new Array(numFooterCells).fill('<td></td>');
 
-        if (quantityColIdx !== -1) {
-            const batchNoColIdx = currentDataKeys.indexOf('batchNo');
-            if (batchNoColIdx !== -1 && batchNoColIdx < quantityColIdx) {
-                footerCells[batchNoColIdx] = `<td><strong>Total Quantity:</strong></td>`;
-            } else if (quantityColIdx > 0) {
-                 footerCells[quantityColIdx - 1] = `<td><strong>Total Quantity:</strong></td>`;
-            }
-            footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
-        }
-
-        if (palletColIdx !== -1) {
-            const packingSizeColIdx = currentDataKeys.indexOf('packingSize');
-            if (packingSizeColIdx !== -1 && packingSizeColIdx < palletColIdx && footerCells[packingSizeColIdx] === '<td></td>') {
-                footerCells[packingSizeColIdx] = `<td><strong>Total Pallets:</strong></td>`;
-            } else if (palletColIdx > 0 && footerCells[palletColIdx - 1] === '<td></td>') {
-                 footerCells[palletColIdx - 1] = `<td><strong>Total Pallets:</strong></td>`;
+        if (activeViewName === 'Jordon' || activeViewName === 'Lineage') {
+            const palletColIdx = currentDataKeys.indexOf('pallet');
+            if (palletColIdx > 0) {
+                footerCells[palletColIdx - 1] = `<td><strong>Total:</strong></td>`;
             }
             footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
+            const quantityColIdx = currentDataKeys.indexOf('quantity');
+            footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
+        } else {
+            if (quantityColIdx !== -1) {
+                const batchNoColIdx = currentDataKeys.indexOf('batchNo');
+                if (batchNoColIdx !== -1 && batchNoColIdx < quantityColIdx) {
+                    footerCells[batchNoColIdx] = `<td><strong>Total Quantity:</strong></td>`;
+                } else if (quantityColIdx > 0) {
+                     footerCells[quantityColIdx - 1] = `<td><strong>Total Quantity:</strong></td>`;
+                }
+                footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
+            }
         }
 
         html += footerCells.join('');
@@ -474,14 +474,3 @@ async function getWarehouseInfo(viewDisplayName) {
     }
 }
 
-function handleRowRemoveClick(event) {
-    if (event.target.classList.contains('remove-row-btn')) {
-        const rowIndex = parseInt(event.target.dataset.rowIndex, 10);
-        const activeViewName = getActiveViewName();
-        if (activeViewName && shipmentModuleState.allExtractedData[activeViewName]) {
-            shipmentModuleState.allExtractedData[activeViewName].splice(rowIndex, 1);
-            displayExtractedData(shipmentModuleState.allExtractedData[activeViewName]);
-            updateButtonState();
-        }
-    }
-}

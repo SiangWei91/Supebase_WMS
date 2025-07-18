@@ -85,9 +85,8 @@
 }
 
 /* Style for the Product Description column to ensure it has enough width */
-.product-description-col {
-  min-width: 400px !important; /* Using !important to ensure override if necessary, though direct class targeting should be specific enough */
-  /* overflow-wrap: break-word; is already applied to all th, td below, so it's inherited */
+#resultsContainer td:nth-child(2) {
+    min-width: 400px;
 }
 
 #resultsContainer th {
@@ -137,7 +136,7 @@
   font-size: 0.95em;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
   white-space: nowrap;
-  margin-right: 2px;
+  margin-right: 10px;
   border-radius: 4px 4px 0 0;
 }
 
