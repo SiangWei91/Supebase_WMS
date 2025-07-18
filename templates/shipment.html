@@ -1,10 +1,10 @@
 <link rel="stylesheet" href="/shipment.css">
 <div class="shipment-content-area">
-  <div class="tab-container">
-    <div class="tab active" data-tab="shipment-list">Shipment List</div>
-    <div class="tab" data-tab="shipment-upload">Shipment Upload</div>
-    <div class="tab" data-tab="shipment-allocation">Shipment Allocation</div>
-  </div>
+    <div id="shipmentTabNav">
+        <div class="shipment-tab active-tab" data-tab="shipment-list">Shipment List</div>
+        <div class="shipment-tab" data-tab="shipment-upload">Shipment Upload</div>
+        <div class="shipment-tab" data-tab="shipment-allocation">Shipment Allocation</div>
+    </div>
 
   <div id="shipment-list" class="tab-content" style="display: block;">
     <h2>Shipment List</h2>
@@ -21,12 +21,6 @@
       <input type="file" id="excelFileInput" accept=".xlsx, .xlsm" />
       <div id="pageMessages" class="page-messages-container">
           <!-- Custom messages will be dynamically inserted here -->
-      </div>
-      <div class="tab-action-bar" id="shipmentTabActionBar"> <!-- New wrapper -->
-          <div id="shipmentTabNav" style="display: none; flex-grow: 1;">
-              <!-- Tabs will be dynamically inserted here by JavaScript -->
-          </div>
-          <button id="updateInventoryBtn" style="display: none;">Update to Inventory</button>
       </div>
       <div id="shipmentDetailsContainer">
           <!-- Container Number and Stored Date will be displayed here -->
