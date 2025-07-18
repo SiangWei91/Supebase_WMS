@@ -54,7 +54,11 @@ function processWorkbook(workbook) {
     const jordonSheet = workbook.Sheets['Jordon'];
     if (jordonSheet) {
         const storedDateCell = jordonSheet['D10'];
-        shipmentModuleState.storedDate = storedDateCell ? storedDateCell.w || storedDateCell.v : 'N/A';
+        let storedDate = storedDateCell ? storedDateCell.w || storedDateCell.v : 'N/A';
+        if (storedDate !== 'N/A') {
+            storedDate = reformatDateToDDMMYYYY(storedDate);
+        }
+        shipmentModuleState.storedDate = storedDate;
     } else {
         shipmentModuleState.storedDate = 'N/A';
     }
