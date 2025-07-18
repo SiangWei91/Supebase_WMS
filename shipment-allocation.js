@@ -34,7 +34,7 @@ function handleFile(e) {
 }
 
 function processWorkbook(workbook) {
-    const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
+    const sheet1 = workbook.Sheets['sheet 1'];
     const sheet1Data = XLSX.utils.sheet_to_json(sheet1, {header: 1, defval: ''});
 
     const sheet1LookupMap = new Map();
@@ -223,7 +223,7 @@ function extractDataForView(sheetData, viewConfig, sheet1LookupMap) {
     const itemCodeColIndexInConvert = getColumnIndex('A');
     const descriptionColIndexInConvert = getColumnIndex('B');
     const quantityColIndexInConvert = getColumnIndex(viewConfig.filterColumnLetter);
-    for (let i = 0; i < sheetData.length; i++) {
+    for (let i = 1; i < sheetData.length; i++) {
         const row = sheetData[i];
         if (!row) continue;
         const itemCodeValue = row[itemCodeColIndexInConvert];
