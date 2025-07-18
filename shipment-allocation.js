@@ -471,11 +471,10 @@ async function updateInventory() {
                 continue;
             }
 
-            const encodedBatchNo = encodeURIComponent(item.batchNo);
             const inventoryData = {
                 item_code: productId,
                 warehouse_id: item.warehouse_id,
-                batch_no: encodedBatchNo,
+                batch_no: item.batchNo,
                 quantity: Math.abs(parseFloat(item.quantity)),
                 container: shipmentModuleState.containerNumber,
                 details: {}
@@ -532,7 +531,7 @@ async function updateInventory() {
                 item_code: item.itemCode,
                 warehouse_id: item.warehouse_id,
                 batch_no: item.batchNo,
-                quantity: item.quantity,
+                quantity: Math.abs(parseFloat(item.quantity)),
                 transaction_date: new Date().toISOString().split('T')[0],
             };
 
