@@ -453,40 +453,16 @@ async function updateInventory() {
 }
 
 async function getWarehouseInfo(viewDisplayName) {
-    let warehouseIdKey = '';
+    let warehouseId = '';
     switch (viewDisplayName) {
         case 'Jordon': warehouseId = 'jordon'; break;
-        case 'Lineage': warehouseIdKey = 'lineage'; break;
-        case 'Blk15': warehouseIdKey = 'blk15'; break;
-        case 'Coldroom 6': warehouseIdKey = 'coldroom6'; break;
-        case 'Coldroom 5': warehouseIdKey = 'coldroom5'; break;
+        case 'Lineage': warehouseId = 'lineage'; break;
+        case 'Blk15': warehouseId = 'blk15'; break;
+        case 'Coldroom 6': warehouseId = 'coldroom6'; break;
+        case 'Coldroom 5': warehouseId = 'coldroom5'; break;
         default:
-            const generatedId = viewDisplayName.toLowerCase().replace(/\s+/g, '');
-            warehouseIdKey = generatedId;
+            warehouseId = viewDisplayName.toLowerCase().replace(/\s+/g, '');
     }
-
-    try {
-        const { data: warehouseData, error } = await supabase
-            .from('warehouses')
-            .select('id')
-            .eq('id', warehouseIdKey)
-            .single();
-
-        if (error) {
-            if (error.code === 'PGRST116') {
-                 return { warehouseId: warehouseIdKey, error: `Warehouse doc ${warehouseIdKey} not found in Supabase` };
-            }
-            throw error;
-        }
-
-        if (warehouseData) {
-            return { warehouseId: warehouseData.id };
-        } else {
-            return { warehouseId: warehouseIdKey, error: `Warehouse doc ${warehouseIdKey} not found (no data returned)` };
-        }
-    } catch (error) {
-        console.error(`Error fetching warehouse ${warehouseIdKey} from Supabase:`, error);
-        return { warehouseId: warehouseIdKey, error: `Error fetching warehouse ${warehouseIdKey}: ${error.message}` };
-    }
+    return { warehouseId };
 }
 
