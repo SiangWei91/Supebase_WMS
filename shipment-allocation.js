@@ -494,7 +494,8 @@ async function updateInventory() {
                 quantity: parseFloat(item.quantity),
                 container: shipmentModuleState.containerNumber,
                 details: {},
-                excel_row_number: item.excelRowNumber
+                excel_row_number: item.excelRowNumber,
+                created_at: new Date().toISOString()
             };
 
             if (item.warehouse_id === 'jordon' || item.warehouse_id === 'lineage') {
