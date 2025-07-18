@@ -27,6 +27,10 @@ export function loadShipmentAllocationPage() {
         resultsContainer.addEventListener('click', handleRowRemoveClick);
     }
 
+    const updateBtn = document.getElementById('updateInventoryBtn');
+    if (updateBtn) {
+        updateBtn.addEventListener('click', updateInventory);
+    }
 }
 
 function handleFile(e) {
@@ -421,6 +425,108 @@ function handleRowRemoveClick(event) {
     }
 }
 
+async function getWarehouseInfo(viewDisplayName) {
+    let warehouseId = '';
+    switch (viewDisplayName) {
+        case 'Jordon': warehouseId = 'Jordon'; break;
+        case 'Lineage': warehouseId = 'lineage'; break;
+        case 'Blk15': warehouseId = 'blk15'; break;
+        case 'Coldroom 6': warehouseId = 'coldroom6'; break;
+        case 'Coldroom 5': warehouseId = 'coldroom5'; break;
+        default:
+            warehouseId = viewDisplayName.toLowerCase().replace(/\s+/g, '');
+    }
+    return { warehouseId };
+}
+
+async function updateInventory() {
+    const allItems = [];
+    for (const viewName in shipmentModuleState.allExtractedData) {
+        const viewData = shipmentModuleState.allExtractedData[viewName];
+        const { warehouseId } = await getWarehouseInfo(viewName);
+        viewData.forEach(item => {
+            allItems.push({ ...item, warehouse_id: warehouseId });
+        });
+    }
+
+    for (const item of allItems) {
+        try {
+            // Check if product exists, if not create it
+            let { data: product, error: productError } = await supabase
+                .from('products')
+                .select('item_code')
+                .eq('item_code', item.itemCode)
+                .single();
+
+            if (productError && productError.code === 'PGRST116') { // Not found
+                const { error: insertError } = await supabase
+                    .from('products')
+                    .insert([{
+                        item_code: item.itemCode,
+                        product_name: item.productDescription,
+                        packing_size: item.packingSize
+                    }]);
+                if (insertError) throw insertError;
+            } else if (productError) {
+                throw productError;
+            }
+
+            // Prepare inventory data
+            const inventoryData = {
+                item_code: item.itemCode,
+                warehouse_id: item.warehouse_id,
+                batch_no: item.batchNo,
+                quantity: item.quantity,
+                container: shipmentModuleState.containerNumber,
+                status: 'Pending',
+                details: {}
+            };
+
+            if (item.warehouse_id === 'Jordon' || item.warehouse_id === 'lineage') {
+                inventoryData.details = {
+                    pallet: item.pallet,
+                    status: "Pending",
+                    location: "",
+                    lotNumber: "",
+                    dateStored: shipmentModuleState.storedDate,
+                    palletType: "",
+                    llm_item_code: item.llmItemCode || ""
+                };
+            }
+
+            // Upsert into inventory
+            const { error: inventoryError } = await supabase
+                .from('inventory')
+                .upsert(inventoryData, { onConflict: ['item_code', 'warehouse_id', 'batch_no'] });
+
+            if (inventoryError) throw inventoryError;
+
+            // Create transaction record
+            const transactionData = {
+                transaction_type: 'IN',
+                item_code: item.itemCode,
+                warehouse_id: item.warehouse_id,
+                batch_no: item.batchNo,
+                quantity: item.quantity,
+                transaction_date: new Date().toISOString().split('T')[0],
+            };
+
+            const { error: transactionError } = await supabase
+                .from('transactions')
+                .insert([transactionData]);
+
+            if (transactionError) throw transactionError;
+
+        } catch (error) {
+            console.error('Error updating inventory for item:', item.itemCode, error);
+            alert(`Error updating inventory for item ${item.itemCode}: ${error.message}`);
+            return; // Stop on first error
+        }
+    }
+
+    alert('Inventory updated successfully!');
+}
+
 function handleCellEdit(event) {
     if (event.target.classList.contains('editable-cell-input')) {
         const rowIndex = parseInt(event.target.dataset.rowIndex, 10);
@@ -432,6 +538,4 @@ function handleCellEdit(event) {
         }
     }
 }
-
-
 
