@@ -469,23 +469,16 @@ async function getWarehouseInfo(viewDisplayName) {
 }
 
 async function updateInventory() {
-    const aggregatedItems = {};
-
+    const allItems = [];
     for (const viewName in shipmentModuleState.allExtractedData) {
         const viewData = shipmentModuleState.allExtractedData[viewName];
         const { warehouseId } = await getWarehouseInfo(viewName);
         viewData.forEach(item => {
-            const key = `${item.itemCode}-${warehouseId}-${item.batchNo}`;
-            if (aggregatedItems[key]) {
-                aggregatedItems[key].quantity += parseFloat(item.quantity);
-            } else {
-                aggregatedItems[key] = { ...item, warehouse_id: warehouseId, quantity: parseFloat(item.quantity) };
-            }
+            allItems.push({ ...item, warehouse_id: warehouseId });
         });
     }
 
-    for (const key in aggregatedItems) {
-        const item = aggregatedItems[key];
+    for (const item of allItems) {
         try {
             const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
 
@@ -500,7 +493,8 @@ async function updateInventory() {
                 batch_no: item.batchNo,
                 quantity: parseFloat(item.quantity),
                 container: shipmentModuleState.containerNumber,
-                details: {}
+                details: {},
+                excel_row_number: item.excelRowNumber
             };
 
             if (item.warehouse_id === 'jordon' || item.warehouse_id === 'lineage') {
@@ -515,32 +509,11 @@ async function updateInventory() {
                 };
             }
 
-            const { data: existing, error: selectError } = await supabase
+            // Insert new record
+            const { error: insertError } = await supabase
                 .from('inventory')
-                .select('id, quantity')
-                .eq('item_code', productId)
-                .eq('warehouse_id', item.warehouse_id)
-                .eq('batch_no', item.batchNo);
-
-            if (selectError) {
-                throw selectError;
-            }
-
-            if (existing && existing.length > 0) {
-                // Update existing record
-                const newQuantity = existing[0].quantity + parseFloat(item.quantity);
-                const { error: updateError } = await supabase
-                    .from('inventory')
-                    .update({ quantity: newQuantity })
-                    .match({ id: existing.id });
-                if (updateError) throw updateError;
-            } else {
-                // Insert new record
-                const { error: insertError } = await supabase
-                    .from('inventory')
-                    .insert([inventoryData]);
-                if (insertError) throw insertError;
-            }
+                .insert([inventoryData]);
+            if (insertError) throw insertError;
 
             const transactionData = {
                 transaction_type: 'inbound',
