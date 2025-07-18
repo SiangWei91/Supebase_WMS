@@ -519,7 +519,7 @@ async function updateInventory() {
             }
 
             const transactionData = {
-                transaction_type: 'Inbound',
+                transaction_type: 'inbound',
                 item_code: item.itemCode,
                 warehouse_id: item.warehouse_id,
                 batch_no: item.batchNo,
