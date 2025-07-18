@@ -53,6 +53,9 @@ const loadContent = async (page) => {
           module.loadShipmentPage(content);
           const allocationModule = await import('/shipment-allocation.js');
           allocationModule.loadShipmentAllocationPage();
+        } else if (page === 'transaction') {
+            const module = await import('/transaction.js');
+            module.loadTransactions(content, supabase);
         }
       } else {
         content.innerHTML = '<p>Page not found.</p>';
