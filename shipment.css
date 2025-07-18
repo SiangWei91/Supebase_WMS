@@ -128,35 +128,26 @@
   list-style: none;
 }
 
-/* Individual Tab Styling (using the .shipment-tab class) */
-.shipment-tab {
-  padding: 10px 18px;
+/* Individual Tab Styling (using the .tab-link class from the JS) */
+#shipmentTabNav .tab-link {
+  padding: 12px 20px;
   cursor: pointer;
-  border: 1px solid transparent;
-  border-bottom: none;
-  background-color: #f8f9fa;
-  color: #495057;
-  font-size: 0.95em;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-  white-space: nowrap;
-  margin-right: 10px;
-  border-radius: 4px 4px 0 0;
+  border: none;
+  background-color: transparent;
+  color: #555;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  margin: 0 5px;
 }
 
-.shipment-tab:hover {
-  background-color: #e9ecef;
-  color: #0056b3;
+#shipmentTabNav .tab-link:hover {
+  background-color: #f0f0f0;
+  color: #333;
 }
 
-.shipment-tab.active-tab {
-  background-color: #ffffff;
+#shipmentTabNav .tab-link.active-tab {
   color: #3498db;
-  border-color: #dee2e6 #dee2e6 #ffffff;
-  border-top: 2px solid #3498db;
-  font-weight: bold;
-  position: relative;
-  margin-bottom: -2px; /* Overlap the parent's border if tab-action-bar has the border */
-                       /* Or if #shipmentTabNav has the border, this makes it sit flush */
+  font-weight: 600;
 }
 
 /* If #shipmentTabNav has the border-bottom, this ensures #resultsContainer connects cleanly */
