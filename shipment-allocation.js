@@ -427,13 +427,19 @@ function handleCellEdit(event) {
 }
 
 async function lookupOrCreateProduct(itemCode, productName, packingSize) {
-    let { data: product, error } = await supabase
+    let { data: products, error } = await supabase
         .from('products')
         .select('item_code')
-        .eq('item_code', itemCode)
-        .single();
+        .eq('item_code', itemCode);
 
-    if (error && error.code === 'PGRST116') { // Not found
+    if (error) {
+        console.error('Error looking up product:', error);
+        return { productId: null };
+    }
+
+    if (products && products.length > 0) {
+        return { productId: products[0].item_code };
+    } else {
         const { data: newProduct, error: insertError } = await supabase
             .from('products')
             .insert([{ item_code: itemCode, product_name: productName, packing_size: packingSize }])
@@ -445,12 +451,7 @@ async function lookupOrCreateProduct(itemCode, productName, packingSize) {
             return { productId: null };
         }
         return { productId: newProduct.item_code };
-    } else if (error) {
-        console.error('Error looking up product:', error);
-        return { productId: null };
     }
-
-    return { productId: product.item_code };
 }
 
 async function getWarehouseInfo(viewDisplayName) {
@@ -468,16 +469,23 @@ async function getWarehouseInfo(viewDisplayName) {
 }
 
 async function updateInventory() {
-    const allItems = [];
+    const aggregatedItems = {};
+
     for (const viewName in shipmentModuleState.allExtractedData) {
         const viewData = shipmentModuleState.allExtractedData[viewName];
         const { warehouseId } = await getWarehouseInfo(viewName);
         viewData.forEach(item => {
-            allItems.push({ ...item, warehouse_id: warehouseId });
+            const key = `${item.itemCode}-${warehouseId}-${item.batchNo}`;
+            if (aggregatedItems[key]) {
+                aggregatedItems[key].quantity += parseFloat(item.quantity);
+            } else {
+                aggregatedItems[key] = { ...item, warehouse_id: warehouseId, quantity: parseFloat(item.quantity) };
+            }
         });
     }
 
-    for (const item of allItems) {
+    for (const key in aggregatedItems) {
+        const item = aggregatedItems[key];
         try {
             const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
 
@@ -512,16 +520,15 @@ async function updateInventory() {
                 .select('id, quantity')
                 .eq('item_code', productId)
                 .eq('warehouse_id', item.warehouse_id)
-                .eq('batch_no', item.batchNo)
-                .single();
+                .eq('batch_no', item.batchNo);
 
-            if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = not found
+            if (selectError) {
                 throw selectError;
             }
 
-            if (existing) {
+            if (existing && existing.length > 0) {
                 // Update existing record
-                const newQuantity = existing.quantity + parseFloat(item.quantity);
+                const newQuantity = existing[0].quantity + parseFloat(item.quantity);
                 const { error: updateError } = await supabase
                     .from('inventory')
                     .update({ quantity: newQuantity })
