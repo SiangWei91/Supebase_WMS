@@ -497,7 +497,7 @@ async function updateInventory() {
                 .select('id')
                 .eq('item_code', item.itemCode)
                 .eq('warehouse_id', item.warehouse_id)
-                .eq('batch_no', encodeURIComponent(item.batchNo))
+                .eq('batch_no', item.batchNo)
                 .single();
 
             if (selectError && selectError.code !== 'PGRST116') {
