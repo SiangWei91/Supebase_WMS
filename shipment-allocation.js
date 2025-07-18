@@ -48,17 +48,22 @@ function processWorkbook(workbook) {
         }
     });
 
+    const convertSheet = workbook.Sheets['Convert'];
+    const convertSheetData = XLSX.utils.sheet_to_json(convertSheet, {header: 1, defval: ''});
+
     shipmentModuleState.viewDefinitions.forEach(view => {
-        const sheet = workbook.Sheets[view.displayName];
-        if (sheet) {
-            const sheetData = XLSX.utils.sheet_to_json(sheet, {header: 1, defval: ''});
-            if (view.name === 'Jordon') {
+        if (view.name === 'Jordon') {
+            const sheet = workbook.Sheets[view.displayName];
+            if (sheet) {
                 shipmentModuleState.allExtractedData[view.name] = extractJordonData(sheet, sheet1LookupMap);
-            } else if (view.name === 'Lineage') {
-                shipmentModuleState.allExtractedData[view.name] = extractLineageData(sheet, sheet1LookupMap);
-            } else {
-                shipmentModuleState.allExtractedData[view.name] = extractDataForView(sheetData, view, sheet1LookupMap);
             }
+        } else if (view.name === 'Lineage') {
+            const sheet = workbook.Sheets[view.displayName];
+            if (sheet) {
+                shipmentModuleState.allExtractedData[view.name] = extractLineageData(sheet, sheet1LookupMap);
+            }
+        } else {
+            shipmentModuleState.allExtractedData[view.name] = extractDataForView(convertSheetData, view, sheet1LookupMap);
         }
     });
 
