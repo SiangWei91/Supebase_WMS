@@ -24,7 +24,6 @@ export function loadShipmentAllocationPage() {
     const resultsContainer = document.getElementById('resultsContainer');
     if (resultsContainer) {
         resultsContainer.addEventListener('change', handleCellEdit);
-        resultsContainer.addEventListener('click', handleRowRemoveClick);
     }
 
     const updateBtn = document.getElementById('updateInventoryBtn');
@@ -387,17 +386,23 @@ function updateButtonState() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const resultsContainer = document.getElementById('resultsContainer');
-    if (resultsContainer) {
-        resultsContainer.addEventListener('change', handleCellEdit);
-        resultsContainer.addEventListener('click', handleRowRemoveClick);
-    }
-
     const updateBtn = document.getElementById('updateInventoryBtn');
     if (updateBtn) {
         updateBtn.addEventListener('click', updateInventory);
     }
 });
+
+function handleRowRemoveClick(event) {
+    if (event.target.classList.contains('remove-row-btn')) {
+        const rowIndex = parseInt(event.target.dataset.rowIndex, 10);
+        const activeViewName = getActiveViewName();
+        if (activeViewName && shipmentModuleState.allExtractedData[activeViewName]) {
+            shipmentModuleState.allExtractedData[activeViewName].splice(rowIndex, 1);
+            displayExtractedData(shipmentModuleState.allExtractedData[activeViewName]);
+            updateButtonState();
+        }
+    }
+}
 
 function handleCellEdit(event) {
     if (event.target.classList.contains('editable-cell-input')) {
