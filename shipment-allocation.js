@@ -485,7 +485,8 @@ async function updateInventory() {
         for (let i = 0; i < viewData.length; i++) {
             const item = viewData[i];
             if (!item.itemCode) {
-                alert(`Row ${i + 1} in the ${viewName} table is missing an item code.`);
+                const pageMessages = document.getElementById('pageMessages');
+                pageMessages.innerHTML = `<div class="error-message">Row ${i + 1} in the ${viewName} table is missing an item code.</div>`;
                 return;
             }
             allItems.push({ ...item, warehouse_id: warehouseId });
@@ -554,6 +555,7 @@ async function updateInventory() {
         }
     }
 
-    alert('Inventory updated successfully!');
+    const pageMessages = document.getElementById('pageMessages');
+    pageMessages.innerHTML = '<div class="success-message">Inventory updated successfully!</div>';
     loadingIndicator.style.display = 'none';
 }
