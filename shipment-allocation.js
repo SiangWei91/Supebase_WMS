@@ -345,13 +345,16 @@ function displayExtractedData(data) {
         const footerCells = new Array(numFooterCells).fill('<td></td>');
 
         if (activeViewName === 'Jordon' || activeViewName === 'Lineage') {
-            const palletColIdx = currentDataKeys.indexOf('pallet');
-            if (palletColIdx > 0) {
-                footerCells[palletColIdx - 1] = `<td><strong>Total :</strong></td>`;
-            }
-            footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
             const quantityColIdx = currentDataKeys.indexOf('quantity');
+            const palletColIdx = currentDataKeys.indexOf('pallet');
+
+            if (quantityColIdx > 0) {
+                 footerCells[quantityColIdx - 1] = `<td><strong>Total :</strong></td>`;
+            }
             footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
+            if (palletColIdx > 0) {
+                footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
+            }
         } else {
             if (quantityColIdx !== -1) {
                 const batchNoColIdx = currentDataKeys.indexOf('batchNo');
