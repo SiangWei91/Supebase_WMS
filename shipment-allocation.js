@@ -486,7 +486,8 @@ async function updateInventory() {
         for (let i = 0; i < viewData.length; i++) {
             const item = viewData[i];
             if (!item.itemCode) {
-                alert(`Row ${i + 1} in the ${viewName} table is missing an item code.`);
+                showModal(`Row ${i + 1} in the ${viewName} table is missing an item code.`);
+                loadingIndicator.style.display = 'none';
                 return;
             }
             allItems.push({ ...item, warehouse_id: warehouseId });
@@ -498,7 +499,8 @@ async function updateInventory() {
             const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
 
             if (!productId) {
-                alert(`Could not find or create product with item code ${item.itemCode}.`);
+                showModal(`Could not find or create product with item code ${item.itemCode}.`);
+                loadingIndicator.style.display = 'none';
                 continue;
             }
 
@@ -550,12 +552,36 @@ async function updateInventory() {
 
         } catch (error) {
             console.error('Error updating inventory for item:', item.itemCode, error);
-            alert(`Error updating inventory for item ${item.itemCode}: ${error.message}`);
+            showModal(`Error updating inventory for item ${item.itemCode}: ${error.message}`);
+            loadingIndicator.style.display = 'none';
             return;
         }
     }
 
+    shipmentModuleState.allExtractedData = {};
+    displayExtractedData([]);
     const pageMessages = document.getElementById('pageMessages');
     pageMessages.innerHTML = '<div class="success-message">Inventory updated successfully!</div>';
     loadingIndicator.style.display = 'none';
+    setTimeout(() => {
+        pageMessages.innerHTML = '';
+    }, 3000);
+}
+
+function showModal(message) {
+    const modal = document.getElementById('itemNotFoundModal');
+    const modalMessage = document.getElementById('modalMessage');
+    modalMessage.textContent = message;
+    modal.style.display = 'block';
+
+    const closeButton = modal.querySelector('.close-button');
+    closeButton.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
 }
