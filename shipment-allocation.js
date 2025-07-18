@@ -507,10 +507,10 @@ async function updateInventory() {
                 };
             }
 
-            console.log('Inserting new inventory:', inventoryData);
             const { error: insertError } = await supabase
                 .from('inventory')
                 .insert([inventoryData]);
+
             if (insertError) {
                 console.error('Insert Error:', insertError);
                 throw insertError;
