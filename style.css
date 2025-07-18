@@ -87,32 +87,6 @@ nav ul li i {
   margin-left: 0;
 }
 
-.tab-container {
-  display: flex;
-  border-bottom: 2px solid #ccc;
-  margin-bottom: 10px;
-}
-
-.tab {
-  padding: 10px 20px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-bottom: none;
-  background-color: #f1f1f1;
-  margin-right: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.tab:hover {
-  background-color: #ddd;
-}
-
-.tab.active {
-  background-color: #fff;
-  border-bottom: 2px solid #00aaff;
-  font-weight: bold;
-}
-
 .stock-take .filters {
   display: flex;
   gap: 1rem;
