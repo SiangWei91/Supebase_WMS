@@ -27,10 +27,6 @@ export function loadShipmentAllocationPage() {
         resultsContainer.addEventListener('click', handleRowRemoveClick);
     }
 
-    const updateBtn = document.getElementById('updateInventoryBtn');
-    if (updateBtn) {
-        updateBtn.addEventListener('click', updateInventory);
-    }
 }
 
 function handleFile(e) {
@@ -389,12 +385,6 @@ function updateButtonState() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const updateBtn = document.getElementById('updateInventoryBtn');
-    if (updateBtn) {
-        updateBtn.addEventListener('click', updateInventory);
-    }
-});
 
 function handleRowRemoveClick(event) {
     if (event.target.classList.contains('remove-row-btn')) {
@@ -420,77 +410,5 @@ function handleCellEdit(event) {
     }
 }
 
-async function updateInventory() {
-    const allItems = [];
-    for (const viewName in shipmentModuleState.allExtractedData) {
-        const viewData = shipmentModuleState.allExtractedData[viewName];
-        const warehouseInfo = await getWarehouseInfo(viewName);
-        viewData.forEach(item => {
-            allItems.push({ ...item, warehouseId: warehouseInfo.warehouseId });
-        });
-    }
 
-    const updates = [];
-    for (const item of allItems) {
-        const { productId } = await lookupOrCreateProduct(item.itemCode, item.productDescription, item.packingSize);
-        if (productId) {
-            updates.push({
-                product_id: productId,
-                warehouse_id: item.warehouseId,
-                quantity: item.quantity,
-                batch_no: item.batchNo,
-                pallet: item.pallet
-            });
-        }
-    }
-
-    try {
-        const { error } = await supabase.from('inventory').upsert(updates, { onConflict: ['product_id', 'warehouse_id', 'batch_no'] });
-        if (error) {
-            throw error;
-        }
-        alert('Inventory updated successfully!');
-    } catch (error) {
-        console.error('Error updating inventory:', error);
-        alert('Error updating inventory: ' + error.message);
-    }
-}
-
-async function getWarehouseInfo(viewDisplayName) {
-    let warehouseIdKey = '';
-    switch (viewDisplayName) {
-        case 'Jordon': warehouseIdKey = 'jordon'; break;
-        case 'Lineage': warehouseIdKey = 'lineage'; break;
-        case 'Blk15': warehouseIdKey = 'blk15'; break;
-        case 'Coldroom 6': warehouseIdKey = 'coldroom6'; break;
-        case 'Coldroom 5': warehouseIdKey = 'coldroom5'; break;
-        default:
-            const generatedId = viewDisplayName.toLowerCase().replace(/\s+/g, '');
-            warehouseIdKey = generatedId;
-    }
-
-    try {
-        const { data: warehouseData, error } = await supabase
-            .from('warehouses')
-            .select('id')
-            .eq('id', warehouseIdKey)
-            .single();
-
-        if (error) {
-            if (error.code === 'PGRST116') {
-                 return { warehouseId: warehouseIdKey, error: `Warehouse doc ${warehouseIdKey} not found in Supabase` };
-            }
-            throw error;
-        }
-
-        if (warehouseData) {
-            return { warehouseId: warehouseData.id };
-        } else {
-            return { warehouseId: warehouseIdKey, error: `Warehouse doc ${warehouseIdKey} not found (no data returned)` };
-        }
-    } catch (error) {
-        console.error(`Error fetching warehouse ${warehouseIdKey} from Supabase:`, error);
-        return { warehouseId: warehouseIdKey, error: `Error fetching warehouse ${warehouseIdKey}: ${error.message}` };
-    }
-}
 
