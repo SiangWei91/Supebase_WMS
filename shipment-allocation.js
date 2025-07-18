@@ -513,6 +513,11 @@ async function updateInventory() {
                 .eq('item_code', item.itemCode)
                 .eq('warehouse_id', item.warehouse_id);
 
+            if (selectError) {
+                console.error('Select Error:', selectError);
+                throw selectError;
+            }
+
             if (selectError && selectError.code !== 'PGRST116') {
                 console.error('Select Error:', selectError);
                 throw selectError;
