@@ -53,6 +53,21 @@ function processWorkbook(workbook) {
     }
     const sheet1Data = XLSX.utils.sheet_to_json(sheet1, {header: 1, defval: ''});
 
+    const containerNumberCell = sheet1['J2'];
+    shipmentModuleState.containerNumber = containerNumberCell ? containerNumberCell.v : 'N/A';
+
+    const jordonSheet = workbook.Sheets['Jordon'];
+    if (jordonSheet) {
+        const storedDateCell = jordonSheet['D10'];
+        let storedDate = storedDateCell ? storedDateCell.w || storedDateCell.v : 'N/A';
+        if (storedDate !== 'N/A') {
+            storedDate = reformatDateToDDMMYYYY(storedDate);
+        }
+        shipmentModuleState.storedDate = storedDate;
+    } else {
+        shipmentModuleState.storedDate = 'N/A';
+    }
+
     const sheet1LookupMap = new Map();
     for (let i = 0; i < sheet1Data.length - 1; i++) {
         const row = sheet1Data[i];
