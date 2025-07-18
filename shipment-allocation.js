@@ -362,13 +362,14 @@ function displayExtractedData(data) {
         const footerCells = new Array(numFooterCells).fill('<td></td>');
 
         if (activeViewName === 'Jordon' || activeViewName === 'Lineage') {
-            const palletColIdx = currentDataKeys.indexOf('pallet');
-            if (palletColIdx > 0) {
-                footerCells[palletColIdx - 1] = `<td><strong>Total :</strong></td>`;
+            const batchNoColIdx = currentDataKeys.indexOf('batchNo');
+            if (batchNoColIdx > 0) {
+                footerCells[batchNoColIdx] = `<td><strong>Total :</strong></td>`;
             }
+            const palletColIdx = currentDataKeys.indexOf('pallet');
             footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
             const quantityColIdx = currentDataKeys.indexOf('quantity');
-            footerCells[quantityColIdx] = `<td><strong>Total : ${totalQuantity.toLocaleString()}</strong></td>`;
+            footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
         } else {
             if (quantityColIdx !== -1) {
                 const batchNoColIdx = currentDataKeys.indexOf('batchNo');
@@ -485,8 +486,7 @@ async function updateInventory() {
         for (let i = 0; i < viewData.length; i++) {
             const item = viewData[i];
             if (!item.itemCode) {
-                const pageMessages = document.getElementById('pageMessages');
-                pageMessages.innerHTML = `<div class="error-message">Row ${i + 1} in the ${viewName} table is missing an item code.</div>`;
+                alert(`Row ${i + 1} in the ${viewName} table is missing an item code.`);
                 return;
             }
             allItems.push({ ...item, warehouse_id: warehouseId });
