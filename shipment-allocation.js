@@ -368,7 +368,7 @@ function displayExtractedData(data) {
             }
             footerCells[palletColIdx] = `<td><strong>${totalPallets.toLocaleString()}</strong></td>`;
             const quantityColIdx = currentDataKeys.indexOf('quantity');
-            footerCells[quantityColIdx] = `<td><strong>${totalQuantity.toLocaleString()}</strong></td>`;
+            footerCells[quantityColIdx] = `<td><strong>Total : ${totalQuantity.toLocaleString()}</strong></td>`;
         } else {
             if (quantityColIdx !== -1) {
                 const batchNoColIdx = currentDataKeys.indexOf('batchNo');
@@ -469,13 +469,21 @@ async function getWarehouseInfo(viewDisplayName) {
 }
 
 async function updateInventory() {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.style.display = 'block';
+
     const allItems = [];
     for (const viewName in shipmentModuleState.allExtractedData) {
         const viewData = shipmentModuleState.allExtractedData[viewName];
         const { warehouseId } = await getWarehouseInfo(viewName);
-        viewData.forEach(item => {
+        for (let i = 0; i < viewData.length; i++) {
+            const item = viewData[i];
+            if (!item.itemCode) {
+                alert(`Row ${i + 1} in the ${viewName} table is missing an item code.`);
+                return;
+            }
             allItems.push({ ...item, warehouse_id: warehouseId });
-        });
+        }
     }
 
     for (const item of allItems) {
@@ -539,4 +547,5 @@ async function updateInventory() {
     }
 
     alert('Inventory updated successfully!');
+    loadingIndicator.style.display = 'none';
 }
