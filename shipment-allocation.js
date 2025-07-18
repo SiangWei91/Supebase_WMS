@@ -220,10 +220,9 @@ function extractLineageData(lineageSheet, sheet1LookupMap) {
 function extractDataForView(sheetData, viewConfig, sheet1LookupMap) {
     const viewResults = [];
     if (!sheetData || sheetData.length === 0) return viewResults;
-    const itemCodeColIndexInConvert = getColumnIndex(viewConfig.columns[0]);
-    const descriptionColIndexInConvert = getColumnIndex(viewConfig.columns[1]);
-    const quantityColIndexInConvert = getColumnIndex(viewConfig.columns[2]);
-    const filterColumnIndex = getColumnIndex(viewConfig.filterColumnLetter);
+    const itemCodeColIndexInConvert = getColumnIndex('A');
+    const descriptionColIndexInConvert = getColumnIndex('B');
+    const quantityColIndexInConvert = getColumnIndex(viewConfig.filterColumnLetter);
     for (let i = 0; i < sheetData.length; i++) {
         const row = sheetData[i];
         if (!row) continue;
@@ -231,11 +230,9 @@ function extractDataForView(sheetData, viewConfig, sheet1LookupMap) {
         const preppedItemCodeForCheck = (itemCodeValue === null || itemCodeValue === undefined) ? "" : String(itemCodeValue).trim();
         if (preppedItemCodeForCheck === '0') break;
         const itemCodeString = String(itemCodeValue || '').trim();
-        const filterValueRaw = row[filterColumnIndex];
-        const filterValueNumeric = parseFloat(filterValueRaw);
-        if (!isNaN(filterValueNumeric) && filterValueNumeric !== 0) {
+        const quantityValue = row[quantityColIndexInConvert];
+        if (quantityValue) {
             const productDescriptionValue = row[descriptionColIndexInConvert];
-            const quantityValue = row[quantityColIndexInConvert];
             const enrichmentData = sheet1LookupMap.get(itemCodeString);
             const packingSizeValue = enrichmentData ? enrichmentData.packingSize : '';
             const batchNoValue = enrichmentData ? enrichmentData.batchNo : '';
