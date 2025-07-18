@@ -495,12 +495,33 @@ async function updateInventory() {
                 };
             }
 
-            // Upsert into inventory
-            const { error: inventoryError } = await supabase
+            // Check if inventory record exists
+            let { data: existingInventory, error: selectError } = await supabase
                 .from('inventory')
-                .upsert(inventoryData, { onConflict: ['item_code', 'warehouse_id', 'batch_no'] });
+                .select('id')
+                .eq('item_code', item.itemCode)
+                .eq('warehouse_id', item.warehouse_id)
+                .eq('batch_no', item.batchNo)
+                .single();
 
-            if (inventoryError) throw inventoryError;
+            if (selectError && selectError.code !== 'PGRST116') { // Ignore 'not found' error
+                throw selectError;
+            }
+
+            if (existingInventory) {
+                // Update existing record
+                const { error: updateError } = await supabase
+                    .from('inventory')
+                    .update(inventoryData)
+                    .eq('id', existingInventory.id);
+                if (updateError) throw updateError;
+            } else {
+                // Insert new record
+                const { error: insertError } = await supabase
+                    .from('inventory')
+                    .insert([inventoryData]);
+                if (insertError) throw insertError;
+            }
 
             // Create transaction record
             const transactionData = {
