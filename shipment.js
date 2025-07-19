@@ -167,11 +167,12 @@ async function handleSaveRow(button) {
   }
 
   try {
-    const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/shipment-list-update', {
+    const { data: { session } } = await supabase.auth.getSession();
+    const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/update-shipment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabase.auth.session().access_token}`,
+        'Authorization': `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ shipmentNo, updates }),
     });
