@@ -419,12 +419,16 @@ div#shipmentDetailsContainer p:last-child {
 
 .cr-temperature-group {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   gap: 20px;
 }
 
-.cr-temperature-table-container,
+.cr-temperature-table-container {
+  flex: 1 1 500px;
+}
+
 .cr-temperature-chart-container {
-  flex: 1;
-  min-width: 400px;
+  flex: 1 1 300px;
+  height: 300px;
 }
