@@ -106,18 +106,25 @@ function renderShipmentTable(data, showActions = true) {
 
     if (showActions) {
       const viewButton = document.createElement('button');
-      viewButton.textContent = 'View';
+      viewButton.innerHTML = '<i class="fas fa-eye"></i>';
       viewButton.classList.add('btn-icon', 'view-btn');
-      viewButton.addEventListener('click', () => handleViewShipment(rowData[0]));
+      viewBUtton.addEventListener('click', () => handleViewShipment(rowData[0]));
 
       const editButton = document.createElement('button');
-      editButton.textContent = 'Edit';
+      editButton.innerHTML = '<i class="fas fa-edit"></i>';
       editButton.classList.add('btn-icon', 'edit-btn');
       editButton.addEventListener('click', (e) => handleEditRow(e.target));
+
+      const saveButton = document.createElement('button');
+      saveButton.innerHTML = '<i class="fas fa-save"></i>';
+      saveButton.classList.add('btn-icon', 'save-btn');
+      saveButton.style.display = 'none';
+      saveButton.addEventListener('click', (e) => handleSaveRow(e.target));
 
       const actionsTd = document.createElement('td');
       actionsTd.appendChild(viewButton);
       actionsTd.appendChild(editButton);
+      actionsTd.appendChild(saveButton);
       row.appendChild(actionsTd);
     }
 
@@ -151,10 +158,9 @@ function handleEditRow(button) {
     cell.classList.add('editable');
   }
 
-  button.textContent = 'Save';
-  button.classList.remove('edit-btn');
-  button.classList.add('save-btn');
-  button.onclick = () => handleSaveRow(button);
+  const saveButton = row.querySelector('.save-btn');
+  button.style.display = 'none';
+  saveButton.style.display = 'inline-block';
 }
 
 async function handleSaveRow(button) {
