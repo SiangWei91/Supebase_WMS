@@ -18,6 +18,7 @@ const coldroomNameMap = {
   "Coldroom 5c Chiller": "Coldroom 5c",
   "Coldroom 3B Chiller": "Coldroom 3B",
   "Coldroom 3A Chiller": "Coldroom 3A",
+  "Coldroom 3 Chiller": "Coldroom 3",
 };
 
 const sortOrder = {
