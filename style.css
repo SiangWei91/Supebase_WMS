@@ -581,8 +581,8 @@ nav ul li i {
 }
 
 .stat-card .coldroom-name {
-  font-size: 0.9rem !important;
-  color: #555 !important;
+  font-size: 0.9rem;
+  color: #555;
 }
 
 .stat-card p {
