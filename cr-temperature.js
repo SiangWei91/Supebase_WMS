@@ -20,6 +20,21 @@ const coldroomNameMap = {
   "Coldroom 3A Chiller": "Coldroom 3A",
 };
 
+const sortOrder = {
+  "Coldroom 5 - 1": "desc",
+  "Coldroom 5 - 2": "desc",
+  "Coldroom 6": "desc",
+  "Coldroom 6 Chiller": "asc",
+  "Blk 15": "desc",
+  "Blk 15 Chiller": "asc",
+  "Coldroom 5c": "asc",
+  "Coldroom 3 Chiller": "asc",
+  "Coldroom 1": "desc",
+  "Coldroom 2": "desc",
+  "Coldroom 3A": "asc",
+  "Coldroom 3B": "asc",
+};
+
 async function fetchData() {
   try {
     const { data: fetchedData, error } = await supabase.functions.invoke(
@@ -146,8 +161,11 @@ function createChart(chartData, coldroomName) {
   const canvas = document.createElement("canvas");
   container.appendChild(canvas);
 
+  const order = sortOrder[coldroomName] || "asc";
   const sortedData = [...chartData].sort((a, b) => {
-    return parseFloat(b.Temperature) - parseFloat(a.Temperature);
+    const tempA = parseFloat(a.Temperature);
+    const tempB = parseFloat(b.Temperature);
+    return order === "asc" ? tempA - tempB : tempB - tempA;
   });
 
   const labels = sortedData.map((item) => item.Time);
