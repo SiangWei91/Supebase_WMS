@@ -117,7 +117,28 @@ nav ul li i {
 
 .tab-nav {
   display: flex;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.tab-link {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  background-color: #f1f1f1;
+  margin-right: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.tab-link:hover {
+  background-color: #ddd;
+}
+
+.tab-link.active {
+  background-color: #fff;
+  border-bottom: 2px solid #00aaff;
+  font-weight: bold;
 }
 
 .tab-container {

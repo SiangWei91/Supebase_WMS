@@ -146,8 +146,17 @@ function createChart(chartData, coldroomName) {
   const canvas = document.createElement("canvas");
   container.appendChild(canvas);
 
-  const labels = chartData.map((item) => item.Time);
-  const temperatures = chartData.map((item) => item.Temperature);
+  const sortedData = [...chartData].sort((a, b) => {
+    const tempA = parseFloat(a.Temperature);
+    const tempB = parseFloat(b.Temperature);
+    if (tempA < 0 && tempB < 0) {
+      return tempB - tempA;
+    }
+    return a.Time.localeCompare(b.Time);
+  });
+
+  const labels = sortedData.map((item) => item.Time);
+  const temperatures = sortedData.map((item) => item.Temperature);
 
   const chart = new Chart(canvas, {
     type: "line",
