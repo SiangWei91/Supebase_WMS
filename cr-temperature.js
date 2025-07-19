@@ -147,12 +147,7 @@ function createChart(chartData, coldroomName) {
   container.appendChild(canvas);
 
   const sortedData = [...chartData].sort((a, b) => {
-    const tempA = parseFloat(a.Temperature);
-    const tempB = parseFloat(b.Temperature);
-    if (tempA < 0 && tempB < 0) {
-      return tempB - tempA;
-    }
-    return a.Time.localeCompare(b.Time);
+    return parseFloat(b.Temperature) - parseFloat(a.Temperature);
   });
 
   const labels = sortedData.map((item) => item.Time);
