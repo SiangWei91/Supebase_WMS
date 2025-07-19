@@ -94,8 +94,9 @@ function renderShipmentTable(data, showActions = true) {
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-  for (let i = 1; i < data.values.length; i++) {
-    const rowData = data.values[i];
+  const reversedData = data.values.slice(1).reverse();
+  for (let i = 0; i < reversedData.length; i++) {
+    const rowData = reversedData[i];
     const row = document.createElement('tr');
     rowData.forEach(cellData => {
       const td = document.createElement('td');
