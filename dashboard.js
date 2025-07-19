@@ -109,6 +109,6 @@ function createTemperatureCard(tempData) {
 export async function loadDashboard() {
   const latestTemps = await getLatestTemperatures();
   const container = document.querySelector(".stats");
-  container.innerHTML = "";
+  // container.innerHTML = ""; // Do not clear the container
   latestTemps.forEach(createTemperatureCard);
 }
