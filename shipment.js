@@ -152,8 +152,7 @@ function handleEditRow(button) {
   button.textContent = 'Save';
   button.classList.remove('edit-btn');
   button.classList.add('save-btn');
-  button.removeEventListener('click', (e) => handleEditRow(e.target));
-  button.addEventListener('click', (e) => handleSaveRow(e.target));
+  button.onclick = () => handleSaveRow(button);
 }
 
 async function handleSaveRow(button) {
@@ -167,6 +166,7 @@ async function handleSaveRow(button) {
   }
 
   try {
+    console.log('Updating shipment:', shipmentNo, 'with updates:', updates);
     const { data: { session } } = await supabase.auth.getSession();
     const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/update-shipment', {
       method: 'POST',
@@ -178,6 +178,8 @@ async function handleSaveRow(button) {
     });
 
     if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error response from server:', errorData);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
   } catch (error) {
