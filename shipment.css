@@ -359,3 +359,36 @@ div#shipmentDetailsContainer p:last-child {
 .editable {
   background-color: #f0f8ff;
 }
+
+.cr-temperature-container {
+  padding: 20px;
+}
+
+.cr-temperature-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cr-temperature-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.cr-temperature-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cr-temperature-table th,
+.cr-temperature-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.cr-temperature-table th {
+  background-color: #f2f2f2;
+}

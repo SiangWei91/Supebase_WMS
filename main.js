@@ -56,6 +56,8 @@ const loadContent = async (page) => {
         } else if (page === 'transactions') {
             const module = await import('/transaction.js');
             module.loadTransactions(content, supabase);
+        } else if (page === 'cr-temperature') {
+          const module = await import('/cr-temperature.js');
         }
       } else {
         content.innerHTML = '<p>Page not found.</p>';

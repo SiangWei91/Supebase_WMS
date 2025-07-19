@@ -1,4 +1,21 @@
-<div class="cr-temperature">
-  <h1>CR Temperature</h1>
-  <!-- Add cr-temperature content here -->
+<div class="cr-temperature-container">
+  <div class="cr-temperature-controls">
+    <select id="coldroom-filter"></select>
+    <input type="date" id="date-filter" />
+  </div>
+  <div class="cr-temperature-table-container">
+    <table class="cr-temperature-table">
+      <thead>
+        <tr>
+          <th>Coldroom</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Temperature</th>
+          <th>Check By</th>
+          <th>Remark</th>
+        </tr>
+      </thead>
+      <tbody id="cr-temperature-tbody"></tbody>
+    </table>
+  </div>
 </div>
