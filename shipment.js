@@ -146,8 +146,9 @@ function handleEditRow(button) {
   const cells = row.querySelectorAll('td');
 
   for (let i = 3; i < cells.length - 1; i++) {
-    cells[i].contentEditable = true;
-    cells[i].classList.add('editable');
+    const cell = cells[i];
+    cell.contentEditable = true;
+    cell.classList.add('editable');
   }
 
   button.textContent = 'Save';
