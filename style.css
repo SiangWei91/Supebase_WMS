@@ -88,8 +88,13 @@ nav ul li i {
 }
 
 .temp-detail {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: normal;
+  color: #888;
+}
+
+.stats {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .cr-temperature-container {
