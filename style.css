@@ -232,25 +232,25 @@ nav ul li i {
   overflow: hidden;
 }
 
-.product-table {
+.data-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.product-table th,
-.product-table td {
+.data-table th,
+.data-table td {
   padding: 13px; /* Reduced padding */
   text-align: left;
   border-bottom: 1px solid #eee;
 }
 
-.product-table th {
+.data-table th {
   background-color: #f8f9fa;
   font-weight: bold;
   color: #2c3e50;
 }
 
-.product-table tr:hover {
+.data-table tr:hover {
   background-color: #f8f9fa;
 }
 

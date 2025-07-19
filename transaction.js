@@ -13,7 +13,7 @@ export async function loadTransactions() {
                 <h1>Transaction List</h1>
             </div>
             <div class="table-container">
-                <table class="transaction-table">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>Item Code</th>

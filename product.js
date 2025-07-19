@@ -30,7 +30,7 @@ export async function loadProducts(contentElement, supabase) {
                 </div>
             </div>
             <div class="table-container">
-                <table class="product-table">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>Item Code</th>
