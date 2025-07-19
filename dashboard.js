@@ -63,15 +63,26 @@ function createTemperatureCard(tempData) {
   const card = document.createElement("div");
   card.className = "stat-card";
 
+  const lastUpdate = tempData.latestEntries[0]
+    ? new Intl.DateTimeFormat("en-GB", {
+        year: "2-digit",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(tempData.latestEntries[0].DateTime)
+    : "N/A";
+
   let content = `
     <i class="fas fa-thermometer-half"></i>
     <div>
       <h3>${tempData.tabName}</h3>
+      <p>Last Update: ${lastUpdate}</p>
   `;
 
   tempData.latestEntries.forEach((entry) => {
     if (entry) {
-      content += `<p>${entry.Temperature}°C</p>`;
+      content += `<p>${entry.Coldroom}: ${entry.Temperature}°C</p>`;
     }
   });
 
