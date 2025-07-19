@@ -107,7 +107,7 @@ function createTable(tableData, coldroomName) {
   container.appendChild(title);
 
   const table = document.createElement("table");
-  table.className = "cr-temperature-table";
+  table.className = "data-table";
   table.innerHTML = `
     <thead>
       <tr>
