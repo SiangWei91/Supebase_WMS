@@ -55,7 +55,7 @@ function createTabs() {
 
   tabNames.forEach((tabName, index) => {
     const tab = document.createElement("button");
-    tab.className = "tab";
+    tab.className = "tab-link";
     tab.textContent = tabName;
     tab.dataset.tabName = tabName;
     if (index === 0) {

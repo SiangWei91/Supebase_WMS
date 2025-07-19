@@ -87,6 +87,39 @@ nav ul li i {
   margin-left: 0;
 }
 
+.cr-temperature-container {
+  padding: 20px;
+}
+
+.cr-temperature-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.cr-temperature-group {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.cr-temperature-table-container {
+  flex: 1 1 500px;
+}
+
+.cr-temperature-chart-container {
+  flex: 1 1 300px;
+  height: 300px;
+}
+
+.tab-nav {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
 .tab-container {
   display: flex;
   border-bottom: 2px solid #ccc;
