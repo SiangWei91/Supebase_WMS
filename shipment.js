@@ -30,12 +30,16 @@ async function openTab(evt, tabName) {
 
   if (tabName === 'shipment-list') {
     const shipmentListContainer = document.getElementById('shipment-list');
+    shipmentListContainer.innerHTML = `
+      <h2>Shipment List</h2>
+      <div id="shipment-list-loading">
+        <div class="spinner"></div>
+      </div>
+      <div id="shipment-list-table"></div>
+    `;
+
     const loadingIndicator = document.getElementById('shipment-list-loading');
     const tableContainer = document.getElementById('shipment-list-table');
-
-    shipmentListContainer.innerHTML = '<h2>Shipment List</h2>';
-    loadingIndicator.style.display = 'block';
-    tableContainer.innerHTML = '';
 
     const data = await getShipmentList();
 
