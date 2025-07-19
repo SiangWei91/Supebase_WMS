@@ -355,3 +355,7 @@ div#shipmentDetailsContainer p:last-child {
   margin-left: 10px;
   cursor: pointer;
 }
+
+.editable {
+  background-color: #f0f8ff;
+}

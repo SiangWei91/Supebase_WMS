@@ -1,5 +1,7 @@
 import { supabase } from './supabase-client.js';
 
+let shipmentHeaders = [];
+
 export async function loadShipmentPage() {
   const tabContainer = document.querySelector('.tab-container');
   tabContainer.addEventListener('click', async (event) => {
@@ -69,6 +71,7 @@ async function getShipmentList() {
 }
 
 function renderShipmentTable(data, showActions = true) {
+  shipmentHeaders = data.values[0];
   const table = document.createElement('table');
   table.classList.add('data-table');
 
@@ -105,8 +108,15 @@ function renderShipmentTable(data, showActions = true) {
       viewButton.textContent = 'View';
       viewButton.classList.add('btn-icon', 'view-btn');
       viewButton.addEventListener('click', () => handleViewShipment(rowData[0]));
+
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Edit';
+      editButton.classList.add('btn-icon', 'edit-btn');
+      editButton.addEventListener('click', (e) => handleEditRow(e.target));
+
       const actionsTd = document.createElement('td');
       actionsTd.appendChild(viewButton);
+      actionsTd.appendChild(editButton);
       row.appendChild(actionsTd);
     }
 
@@ -128,6 +138,59 @@ async function getShipmentDetails(shipmentNo) {
   }
 
   return data;
+}
+
+function handleEditRow(button) {
+  const row = button.closest('tr');
+  const cells = row.querySelectorAll('td');
+
+  for (let i = 3; i < cells.length - 1; i++) {
+    cells[i].contentEditable = true;
+    cells[i].classList.add('editable');
+  }
+
+  button.textContent = 'Save';
+  button.classList.remove('edit-btn');
+  button.classList.add('save-btn');
+  button.removeEventListener('click', (e) => handleEditRow(e.target));
+  button.addEventListener('click', (e) => handleSaveRow(e.target));
+}
+
+async function handleSaveRow(button) {
+  const row = button.closest('tr');
+  const cells = row.querySelectorAll('td');
+  const shipmentNo = cells[0].textContent;
+
+  const updates = {};
+  for (let i = 3; i < cells.length - 1; i++) {
+    updates[shipmentHeaders[i]] = cells[i].textContent;
+  }
+
+  const { error } = await supabase.functions.invoke('shipment-list-update', {
+    method: 'POST',
+    body: { shipmentNo, updates },
+  });
+
+  if (error) {
+    console.error('Error updating shipment list:', error);
+    // You might want to show an error message to the user here
+    return;
+  }
+
+  for (let i = 3; i < cells.length - 1; i++) {
+    cells[i].contentEditable = false;
+    cells[i].classList.remove('editable');
+  }
+
+  button.textContent = 'Edit';
+  button.classList.remove('save-btn');
+  button.classList.add('edit-btn');
+  button.removeEventListener('click', (e) => handleSaveRow(e.target));
+  button.addEventListener('click', (e) => handleEditRow(e.target));
+
+  // Refresh the table
+  const shipmentListTab = document.querySelector('[data-tab="shipment-list"]');
+  openTab({ currentTarget: shipmentListTab }, 'shipment-list');
 }
 
 function handleViewShipment(shipmentNo) {
