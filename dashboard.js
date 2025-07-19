@@ -82,7 +82,24 @@ function createTemperatureCard(tempData) {
 
   tempData.latestEntries.forEach((entry) => {
     if (entry) {
-      content += `<p class="coldroom-name">${entry.Coldroom}: ${entry.Temperature}°C</p>`;
+      const temp = parseFloat(entry.Temperature);
+      let color = "";
+      const room = entry.Coldroom.toLowerCase();
+
+      if (room.includes("chiller") || room.includes("5c") || room.includes("3a") || room.includes("3b") || room.includes("3")) {
+        if (temp >= 6) {
+          color = "red";
+        } else {
+          color = "green";
+        }
+      } else {
+        if (temp >= -15) {
+          color = "red";
+        } else {
+          color = "green";
+        }
+      }
+      content += `<p class="coldroom-name" style="color: ${color};">${entry.Coldroom}: ${entry.Temperature}°C</p>`;
     }
   });
 
