@@ -168,6 +168,10 @@ async function handleSaveRow(button) {
 
   const { error } = await supabase.functions.invoke('shipment-list-update', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer YOUR_ACCESS_TOKEN',
+    },
     body: { shipmentNo, updates },
   });
 
