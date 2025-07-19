@@ -108,7 +108,7 @@ function renderShipmentTable(data, showActions = true) {
       const viewButton = document.createElement('button');
       viewButton.innerHTML = '<i class="fas fa-eye"></i>';
       viewButton.classList.add('btn-icon', 'view-btn');
-      viewBUtton.addEventListener('click', () => handleViewShipment(rowData[0]));
+      viewButton.addEventListener('click', () => handleViewShipment(rowData[0]));
 
       const editButton = document.createElement('button');
       editButton.innerHTML = '<i class="fas fa-edit"></i>';
