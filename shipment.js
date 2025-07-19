@@ -111,9 +111,8 @@ function renderShipmentTable(data) {
 }
 
 async function getShipmentDetails(shipmentNo) {
-  const { data, error } = await supabase.functions.invoke('shipment-details', {
+  const { data, error } = await supabase.functions.invoke(`shipment-details?shipment=${shipmentNo}`, {
     method: 'GET',
-    params: { shipment: shipmentNo },
   });
 
   if (error) {
