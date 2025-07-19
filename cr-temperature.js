@@ -122,6 +122,13 @@ function createTable(tableData, coldroomName) {
   title.textContent = coldroomName;
   container.appendChild(title);
 
+  const lastUpdate = document.createElement("div");
+  lastUpdate.className = "last-update";
+  if (tableData.length > 0) {
+    lastUpdate.textContent = `Last update: ${tableData[0].Time}`;
+  }
+  container.appendChild(lastUpdate);
+
   const table = document.createElement("table");
   table.className = "data-table";
   table.innerHTML = `

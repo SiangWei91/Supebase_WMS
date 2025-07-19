@@ -94,7 +94,9 @@ nav ul li i {
 }
 
 .stats {
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .cr-temperature-container {
@@ -571,6 +573,16 @@ nav ul li i {
   font-size: 1rem; /* This will be affected by body's 0.9rem */
   color: #7f8c8d;
   margin-bottom: 5px;
+}
+
+.stat-card .last-update {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.stat-card .coldroom-name {
+  font-size: 0.9rem;
+  color: #555;
 }
 
 .stat-card p {
