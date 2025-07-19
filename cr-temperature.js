@@ -21,7 +21,13 @@ async function fetchData() {
     renderTable();
   } catch (error) {
     console.error("Error fetching data:", error);
-    tbody.innerHTML = `<tr><td colspan="6">Error loading data.</td></tr>`;
+    let errorMessage = "Error loading data.";
+    if (error.context && error.context.error) {
+      errorMessage = error.context.error.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    tbody.innerHTML = `<tr><td colspan="6">${errorMessage}</td></tr>`;
   }
 }
 
@@ -41,11 +47,12 @@ function renderTable() {
   const selectedDate = dateFilter.value;
 
   const filteredData = data.filter((item) => {
-    const itemDate = new Date(item.Date.split("/").reverse().join("-"))
-      .toISOString()
-      .split("T")[0];
+    const parts = item.Date.split('/');
+    const itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    const itemDateString = itemDate.toISOString().split("T")[0];
+
     const coldroomMatch = !selectedColdroom || item.Coldroom === selectedColdroom;
-    const dateMatch = !selectedDate || itemDate === selectedDate;
+    const dateMatch = !selectedDate || itemDateString === selectedDate;
     return coldroomMatch && dateMatch;
   });
 
