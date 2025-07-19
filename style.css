@@ -87,6 +87,11 @@ nav ul li i {
   margin-left: 0;
 }
 
+.temp-detail {
+  font-size: 1rem;
+  font-weight: normal;
+}
+
 .cr-temperature-container {
   padding: 20px;
 }

@@ -77,12 +77,12 @@ function createTemperatureCard(tempData) {
     <i class="fas fa-thermometer-half"></i>
     <div>
       <h3>${tempData.tabName}</h3>
-      <p>Last Update: ${lastUpdate}</p>
+      <p class="temp-detail">Last Update: ${lastUpdate}</p>
   `;
 
   tempData.latestEntries.forEach((entry) => {
     if (entry) {
-      content += `<p>${entry.Coldroom}: ${entry.Temperature}°C</p>`;
+      content += `<p class="temp-detail">${entry.Coldroom}: ${entry.Temperature}°C</p>`;
     }
   });
 
