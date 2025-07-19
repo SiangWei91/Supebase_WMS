@@ -166,16 +166,20 @@ async function handleSaveRow(button) {
     updates[shipmentHeaders[i]] = cells[i].textContent;
   }
 
-  const { error } = await supabase.functions.invoke('shipment-list-update', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer YOUR_ACCESS_TOKEN',
-    },
-    body: { shipmentNo, updates },
-  });
+  try {
+    const response = await fetch('https://xnwjvhbkzrazluihnzhw.supabase.co/functions/v1/shipment-list-update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabase.auth.session().access_token}`,
+      },
+      body: JSON.stringify({ shipmentNo, updates }),
+    });
 
-  if (error) {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
     console.error('Error updating shipment list:', error);
     // You might want to show an error message to the user here
     return;
