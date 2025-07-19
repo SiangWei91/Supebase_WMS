@@ -392,3 +392,35 @@ div#shipmentDetailsContainer p:last-child {
 .cr-temperature-table th {
   background-color: #f2f2f2;
 }
+
+.tab-nav {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-link {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-link.active {
+  border-bottom: 2px solid #3498db;
+}
+
+.tab-content {
+  padding-top: 20px;
+}
+
+.cr-temperature-chart-container {
+  width: 50%;
+  height: 400px;
+  float: right;
+}
+
+.cr-temperature-table-container {
+  width: 50%;
+  float: left;
+}

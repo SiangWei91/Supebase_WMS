@@ -1,10 +1,11 @@
 import { supabase } from "./supabase-client.js";
 
-const coldroomFilter = document.getElementById("coldroom-filter");
 const dateFilter = document.getElementById("date-filter");
-const tbody = document.getElementById("cr-temperature-tbody");
+const tabNav = document.getElementById("cr-temperature-tab-nav");
+const tabContent = document.getElementById("cr-temperature-tab-content");
 
 let data = [];
+let chart = null;
 
 async function fetchData() {
   try {
@@ -17,27 +18,39 @@ async function fetchData() {
     }
 
     data = fetchedData.data;
-    populateFilters();
-    renderTable();
+    dateFilter.value = new Date().toISOString().split("T")[0];
+    createTabs();
+    renderContent();
   } catch (error) {
     console.error("Error fetching data:", error);
-    tbody.innerHTML = `<tr><td colspan="6">Error loading data.</td></tr>`;
+    tabContent.innerHTML = `<p>Error loading data.</p>`;
   }
 }
 
-function populateFilters() {
+function createTabs() {
   const coldrooms = [...new Set(data.map((item) => item.Coldroom))];
-  coldroomFilter.innerHTML = `<option value="">All Coldrooms</option>`;
-  coldrooms.forEach((coldroom) => {
-    const option = document.createElement("option");
-    option.value = coldroom;
-    option.textContent = coldroom;
-    coldroomFilter.appendChild(option);
+  coldrooms.forEach((coldroom, index) => {
+    const tab = document.createElement("button");
+    tab.className = "tab-link";
+    tab.textContent = coldroom;
+    tab.dataset.coldroom = coldroom;
+    if (index === 0) {
+      tab.classList.add("active");
+    }
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab-link").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      renderContent();
+    });
+    tabNav.appendChild(tab);
   });
 }
 
-function renderTable() {
-  const selectedColdroom = coldroomFilter.value;
+function renderContent() {
+  const activeTab = document.querySelector(".tab-link.active");
+  if (!activeTab) return;
+
+  const selectedColdroom = activeTab.dataset.coldroom;
   const selectedDate = dateFilter.value;
 
   const filteredData = data.filter((item) => {
@@ -45,32 +58,86 @@ function renderTable() {
     const itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
     const itemDateString = itemDate.toISOString().split("T")[0];
 
-    const coldroomMatch = !selectedColdroom || item.Coldroom === selectedColdroom;
-    const dateMatch = !selectedDate || itemDateString === selectedDate;
-    return coldroomMatch && dateMatch;
+    return item.Coldroom === selectedColdroom && itemDateString === selectedDate;
   });
 
-  tbody.innerHTML = "";
-  if (filteredData.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">No data found.</td></tr>`;
-    return;
+  tabContent.innerHTML = "";
+
+  const tableContainer = document.createElement("div");
+  tableContainer.className = "cr-temperature-table-container";
+  const table = document.createElement("table");
+  table.className = "cr-temperature-table";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Temperature</th>
+        <th>Check By</th>
+        <th>Remark</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${filteredData
+        .map(
+          (item) => `
+        <tr>
+          <td>${item.Time}</td>
+          <td>${item.Temperature}</td>
+          <td>${item["Check By"]}</td>
+          <td>${item.Remark}</td>
+        </tr>
+      `
+        )
+        .join("")}
+    </tbody>
+  `;
+  tableContainer.appendChild(table);
+
+  const chartContainer = document.createElement("div");
+  chartContainer.className = "cr-temperature-chart-container";
+  const canvas = document.createElement("canvas");
+  chartContainer.appendChild(canvas);
+
+  tabContent.appendChild(tableContainer);
+  tabContent.appendChild(chartContainer);
+
+  renderChart(canvas, filteredData);
+}
+
+function renderChart(canvas, chartData) {
+  if (chart) {
+    chart.destroy();
   }
 
-  filteredData.forEach((item) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${item.Coldroom}</td>
-      <td>${item.Date}</td>
-      <td>${item.Time}</td>
-      <td>${item.Temperature}</td>
-      <td>${item["Check By"]}</td>
-      <td>${item.Remark}</td>
-    `;
-    tbody.appendChild(row);
+  const labels = chartData.map((item) => item.Time);
+  const temperatures = chartData.map((item) => item.Temperature);
+
+  chart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Temperature",
+          data: temperatures,
+          borderColor: "rgba(75, 192, 192, 1)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: false,
+        },
+      },
+    },
   });
 }
 
-coldroomFilter.addEventListener("change", renderTable);
-dateFilter.addEventListener("change", renderTable);
+dateFilter.addEventListener("change", renderContent);
 
 fetchData();
