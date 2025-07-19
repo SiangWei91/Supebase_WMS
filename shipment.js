@@ -13,7 +13,7 @@ export async function loadShipmentPage() {
   }
 }
 
-function openTab(evt, tabName) {
+async function openTab(evt, tabName) {
   var i, tabcontent, tablinks;
   tabcontent = document.getElementsByClassName("tab-content");
   for (i = 0; i < tabcontent.length; i++) {
