@@ -347,3 +347,11 @@ div#shipmentDetailsContainer p:last-child {
 .page-message.info .close-message-btn {
   color: #0c5460;
 }
+
+.close-tab {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  margin-left: 10px;
+  cursor: pointer;
+}
