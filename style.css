@@ -576,13 +576,13 @@ nav ul li i {
 }
 
 .stat-card .last-update {
-  font-size: 0.8rem;
-  color: #888;
+  font-size: 0.8rem !important;
+  color: #888 !important;
 }
 
 .stat-card .coldroom-name {
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.9rem !important;
+  color: #555 !important;
 }
 
 .stat-card p {

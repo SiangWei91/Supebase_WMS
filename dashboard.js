@@ -59,7 +59,7 @@ async function getLatestTemperatures() {
 }
 
 function createTemperatureCard(tempData) {
-  const container = document.getElementById("temperature-summary-container");
+  const container = document.querySelector(".stats");
   const card = document.createElement("div");
   card.className = "stat-card";
 
@@ -76,13 +76,13 @@ function createTemperatureCard(tempData) {
   let content = `
     <i class="fas fa-thermometer-half"></i>
     <div>
-      <h3>${tempData.tabName}</h3>
-      <p class="temp-detail">Last Update: ${lastUpdate}</p>
+      <h3 class="coldroom-name">${tempData.tabName}</h3>
+      <p class="last-update">Last Update: ${lastUpdate}</p>
   `;
 
   tempData.latestEntries.forEach((entry) => {
     if (entry) {
-      content += `<p class="temp-detail">${entry.Coldroom}: ${entry.Temperature}°C</p>`;
+      content += `<p class="coldroom-name">${entry.Coldroom}: ${entry.Temperature}°C</p>`;
     }
   });
 
@@ -93,7 +93,7 @@ function createTemperatureCard(tempData) {
 
 export async function loadDashboard() {
   const latestTemps = await getLatestTemperatures();
-  const container = document.getElementById("temperature-summary-container");
+  const container = document.querySelector(".stats");
   container.innerHTML = "";
   latestTemps.forEach(createTemperatureCard);
 }
