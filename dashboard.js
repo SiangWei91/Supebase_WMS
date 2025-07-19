@@ -27,7 +27,7 @@ async function getLatestTemperatures() {
       ...item,
       Coldroom: coldroomNameMap[item.Coldroom] || item.Coldroom,
       DateTime: new Date(
-        `${item.Date.split("/").reverse().join("-")}T${item.Time}`
+        `${item.Date.split("/").join("-")}T${item.Time}`
       ),
     }));
 

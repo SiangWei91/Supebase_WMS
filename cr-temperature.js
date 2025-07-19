@@ -51,7 +51,11 @@ async function fetchData() {
       Coldroom: coldroomNameMap[item.Coldroom] || item.Coldroom,
     }));
 
-    dateFilter.value = new Date().toISOString().split("T")[0];
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    dateFilter.value = `${day}/${month}/${year}`;
     updateDateDisplay();
     createTabs();
     renderContent();
@@ -100,10 +104,7 @@ function renderContent() {
     groupContainer.className = "cr-temperature-group";
 
     const filteredData = data.filter((item) => {
-      const parts = item.Date.split('/');
-      const itemDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-      const itemDateString = itemDate.toISOString().split("T")[0];
-      return item.Coldroom === coldroom && itemDateString === dateFilter.value;
+      return item.Coldroom === coldroom && item.Date === dateFilter.value;
     });
 
     const tableContainer = createTable(filteredData, coldroom);
@@ -208,11 +209,7 @@ function createChart(chartData, coldroomName) {
 }
 
 function updateDateDisplay() {
-  const date = new Date(dateFilter.value);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  dateDisplay.textContent = `${day}/${month}/${year}`;
+  dateDisplay.textContent = dateFilter.value;
 }
 
 dateFilter.addEventListener("change", () => {

@@ -3,6 +3,13 @@ import { supabase } from './supabase-client.js';
 let allData = {};
 
 export async function loadStockTakeData() {
+  const datePicker = document.getElementById('date-picker');
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  const year = today.getFullYear();
+  datePicker.value = `${day}/${month}/${year}`;
+
   const searchBtn = document.getElementById('search-btn');
   searchBtn.addEventListener('click', displayData);
 
@@ -48,8 +55,9 @@ function displayData() {
     return;
   }
 
-  const selectedDateObject = new Date(selectedDate);
-  const formattedDate = `${(selectedDateObject.getDate()).toString().padStart(2, '0')}/${(selectedDateObject.getMonth() + 1).toString().padStart(2, '0')}/${selectedDateObject.getFullYear()}`;
+  const dateParts = selectedDate.split('/');
+  const selectedDateObject = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+  const formattedDate = selectedDate;
 
   const tableData = allData[coldroom];
   if (!tableData) {
