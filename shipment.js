@@ -1,3 +1,5 @@
+import { supabase } from './supabase-client.js';
+
 export async function loadShipmentPage() {
   const tabs = document.querySelectorAll('.tab');
   tabs.forEach(tab => {
