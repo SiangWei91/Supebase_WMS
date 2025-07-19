@@ -30,11 +30,20 @@ async function openTab(evt, tabName) {
 
   if (tabName === 'shipment-list') {
     const shipmentListContainer = document.getElementById('shipment-list');
-    shipmentListContainer.innerHTML = '<h2>Shipment List</h2><div id="shipment-list-table"></div>';
+    const loadingIndicator = document.getElementById('shipment-list-loading');
+    const tableContainer = document.getElementById('shipment-list-table');
+
+    shipmentListContainer.innerHTML = '<h2>Shipment List</h2>';
+    loadingIndicator.style.display = 'block';
+    tableContainer.innerHTML = '';
+
     const data = await getShipmentList();
+
+    loadingIndicator.style.display = 'none';
+
     if (data) {
       const table = renderShipmentTable(data);
-      document.getElementById('shipment-list-table').appendChild(table);
+      tableContainer.appendChild(table);
     }
   }
 }
@@ -54,7 +63,7 @@ async function getShipmentList() {
 
 function renderShipmentTable(data) {
   const table = document.createElement('table');
-  table.classList.add('shipment-table');
+  table.classList.add('data-table');
 
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
@@ -64,6 +73,9 @@ function renderShipmentTable(data) {
     th.textContent = header;
     headerRow.appendChild(th);
   });
+  const th = document.createElement('th');
+  th.textContent = 'Actions';
+  headerRow.appendChild(th);
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
@@ -76,6 +88,14 @@ function renderShipmentTable(data) {
       td.textContent = cellData;
       row.appendChild(td);
     });
+
+    const viewButton = document.createElement('button');
+    viewButton.textContent = 'View';
+    viewButton.classList.add('btn-icon', 'view-btn');
+    const actionsTd = document.createElement('td');
+    actionsTd.appendChild(viewButton);
+    row.appendChild(actionsTd);
+
     tbody.appendChild(row);
   }
   table.appendChild(tbody);
