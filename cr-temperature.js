@@ -21,13 +21,7 @@ async function fetchData() {
     renderTable();
   } catch (error) {
     console.error("Error fetching data:", error);
-    let errorMessage = "Error loading data.";
-    if (error.context && error.context.error) {
-      errorMessage = error.context.error.message;
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-    tbody.innerHTML = `<tr><td colspan="6">${errorMessage}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6">Error loading data.</td></tr>`;
   }
 }
 
