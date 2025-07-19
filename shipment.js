@@ -41,14 +41,16 @@ async function openTab(evt, tabName) {
     const loadingIndicator = document.getElementById('shipment-list-loading');
     const tableContainer = document.getElementById('shipment-list-table');
 
-    const data = await getShipmentList();
+    setTimeout(async () => {
+      const data = await getShipmentList();
 
-    loadingIndicator.style.display = 'none';
+      loadingIndicator.style.display = 'none';
 
-    if (data) {
-      const table = renderShipmentTable(data);
-      tableContainer.appendChild(table);
-    }
+      if (data) {
+        const table = renderShipmentTable(data);
+        tableContainer.appendChild(table);
+      }
+    }, 0);
   }
 }
 
@@ -96,6 +98,7 @@ function renderShipmentTable(data) {
     const viewButton = document.createElement('button');
     viewButton.textContent = 'View';
     viewButton.classList.add('btn-icon', 'view-btn');
+    viewButton.addEventListener('click', () => handleViewShipment(rowData[0]));
     const actionsTd = document.createElement('td');
     actionsTd.appendChild(viewButton);
     row.appendChild(actionsTd);
@@ -105,4 +108,54 @@ function renderShipmentTable(data) {
   table.appendChild(tbody);
 
   return table;
+}
+
+async function getShipmentDetails(shipmentNo) {
+  const { data, error } = await supabase.functions.invoke('shipment-details', {
+    method: 'GET',
+    params: { shipment: shipmentNo },
+  });
+
+  if (error) {
+    console.error('Error fetching shipment details:', error);
+    return;
+  }
+
+  return data;
+}
+
+function handleViewShipment(shipmentNo) {
+  openShipmentDetailsTab(shipmentNo);
+}
+
+async function openShipmentDetailsTab(shipmentNo) {
+  const tabContainer = document.querySelector('.tab-container');
+  const contentArea = document.querySelector('.shipment-content-area');
+
+  // Create new tab
+  const newTab = document.createElement('div');
+  newTab.classList.add('tab');
+  newTab.textContent = shipmentNo;
+  newTab.dataset.tab = `shipment-details-${shipmentNo}`;
+  tabContainer.appendChild(newTab);
+
+  // Create new tab content
+  const newContent = document.createElement('div');
+  newContent.id = `shipment-details-${shipmentNo}`;
+  newContent.classList.add('tab-content');
+  newContent.innerHTML = `<h2>${shipmentNo}</h2><div class="spinner"></div>`;
+  contentArea.appendChild(newContent);
+
+  // Switch to new tab
+  openTab({ currentTarget: newTab }, newTab.dataset.tab);
+
+  const data = await getShipmentDetails(shipmentNo);
+
+  if (data) {
+    const table = renderShipmentTable(data);
+    newContent.innerHTML = `<h2>${shipmentNo}</h2>`;
+    newContent.appendChild(table);
+  } else {
+    newContent.innerHTML = `<h2>${shipmentNo}</h2><p>Could not load shipment details.</p>`;
+  }
 }
