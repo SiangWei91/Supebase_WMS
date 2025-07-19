@@ -108,6 +108,14 @@ nav ul li i {
   margin: 0 auto;
 }
 
+.Tempstats {
+  max-width: 800px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
 .cr-temperature-controls {
   display: flex;
   gap: 10px;
